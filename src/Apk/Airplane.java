@@ -55,4 +55,17 @@ public class Airplane {
     public int getPriority() {
         return priority;
     }
+
+    @Override
+    public String toString() {
+        return "Airplane{" +
+                "type='" + type + '\'' +
+                ", code='" + code + '\'' +
+                ", minRunwayLength=" + minRunwayLength +
+                ", arrival=" + arrival +
+                ", runwayRequest=" + runwayRequest +
+                ", departure=" + departure +
+                ", priority=" + priority +
+                '}';
+    }
 }
