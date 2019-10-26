@@ -2,9 +2,7 @@ package structures.tester;
 
 import structures.SplayTree;
 import structures.TreeNode;
-
 import java.util.*;
-
 
 public class SplayTreeTester {
 
@@ -12,9 +10,16 @@ public class SplayTreeTester {
     private SplayTree<Integer, String> myTree;
     private TreeMap<Integer, String> javaTree;
     private KeyAndOperationGen generator;
+    private boolean check;
+
+    public SplayTreeTester(int numOfInserts, int numOfDeletes, int numOfFounds, boolean check) {
+        this(numOfInserts, numOfDeletes, numOfFounds, System.currentTimeMillis());
+        this.check = check;
+    }
 
     public SplayTreeTester(int numOfInserts, int numOfDeletes, int numOfFounds) {
         this(numOfInserts, numOfDeletes, numOfFounds, System.currentTimeMillis());
+        this.check = true;
     }
 
     public SplayTreeTester(int numOfInserts, int numOfDeletes, int numOfFounds, long seed) {
@@ -46,7 +51,9 @@ public class SplayTreeTester {
                     String value =  Integer.toString(key);
                     myTree.insert(key, value);
                     javaTree.put(key, value);
-                    checkEquality("insert");
+                    if (check) {
+                        checkEquality("insert");
+                    }
                     if (! myTree.getRoot().getKey().equals(key)) {
                         throw new WrongImplementationException("After splay operation key " + key + " should be root, but actual root is: " + myTree.getRoot().getKey(), generator.getSeed());
                     }
@@ -61,7 +68,9 @@ public class SplayTreeTester {
                         if (! myRemovedValue.equals(javaRemovedValue)) {
                             throw new DifferentTreesException("Wrong value after operation delete!\nexpected= " + javaRemovedValue + "\nactual = " + myRemovedValue, generator.getSeed());
                         }
-                        checkEquality("delete");
+                        if (check) {
+                            checkEquality("delete");
+                        }
                     }
                     else {
                         if (myTree.getSize() == 0) {
@@ -107,6 +116,7 @@ public class SplayTreeTester {
             }
             //System.out.println(myTree.getSize());
         }
+        checkEquality("end");
         return true;
     }
 

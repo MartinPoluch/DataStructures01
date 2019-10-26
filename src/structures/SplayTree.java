@@ -139,6 +139,30 @@ public class SplayTree<K extends Comparable<K>, V> {
         }
     }
 
+    public V findOrInsert(K key, V value) {
+        TreeNode<K, V> insertedNode = new TreeNode<>(key, value, null);
+        if (root == null) {
+            root = insertedNode;
+        }
+        else {
+            TreeNode<K, V> parent = findLastNode(key);
+            if (parent != null) { // nikdy by to nemalo byt null, if len preto aby nevypisovalo warning
+                if (parent.getKey().equals(key)) {
+                    return parent.getValue();
+                }
+                else if (key.compareTo(parent.getKey()) < 0) {
+                    parent.setLeftSon(insertedNode);
+                }
+                else {
+                    parent.setRightSon(insertedNode);
+                }
+            }
+        }
+        size++;
+        splay(insertedNode);
+        return insertedNode.getValue();
+    }
+
     public TreeNode<K, V> findNode(K key) {
         return null;
     }
@@ -273,6 +297,28 @@ public class SplayTree<K extends Comparable<K>, V> {
         return orderedNodes;
     }
 
+    /**
+     * Vrati prve data ktorych kluc je vacsi ako kluc zadany ako parameter.
+     */
+    public V findFirstBiggerValue(K key) {
+        Stack<TreeNode<K, V>> stack = new Stack<>();
+        TreeNode<K, V> node = root;
+        while (! stack.isEmpty() || node != null) {
+            if (node != null) {
+                stack.push(node);
+                node = node.getLeftSon();
+            }
+            else {
+                node = stack.pop();
+                if (node.getKey().compareTo(key) >= 0) {
+                    return node.getValue();
+                }
+                node = node.getRightSon();
+            }
+        }
+        return null;
+    }
+
     public void printLevels() {
         LinkedList<TreeNode<K, V>> queue = new LinkedList<>();
         queue.addFirst(root);
@@ -291,7 +337,6 @@ public class SplayTree<K extends Comparable<K>, V> {
                 numberOfNodes--;
             }
             level++;
-
         }
     }
 }

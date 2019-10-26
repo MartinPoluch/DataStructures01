@@ -1,7 +1,9 @@
 package GUI;
 
 import Apk.Airplane;
+import Apk.Flight;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -16,14 +18,11 @@ public class AddAirplaneController {
     @FXML private TextField minLength;
     @FXML private TextField priority;
     @FXML private HBox dateTimeBox;
-    private DateTimePicker datePicker;
     private boolean valid;
 
 
 
     public void initialize() {
-        datePicker = new DateTimePicker();
-        dateTimeBox.getChildren().add(datePicker);
         valid = false;
         confirmBtn.setOnAction(e -> {
             valid = true;
@@ -39,14 +38,26 @@ public class AddAirplaneController {
 
 
 
-    public Airplane createAirplane() {
+    public Flight createAirplane() {
         //TODO mozno pridat validaciu dat
-        Airplane airplane = null;
+        Flight flight = null;
         if (valid) {
-            int minLength = Integer.parseInt(this.minLength.getText());
-            int priority = Integer.parseInt(this.priority.getText());
-            airplane = new Airplane(type.getText(), code.getText(), minLength, datePicker.getDateTimeValue(), priority);
+            try {
+                int minLength = Integer.parseInt(this.minLength.getText());
+                int priority = Integer.parseInt(this.priority.getText());
+                Airplane airplane = new Airplane(type.getText(), code.getText(), minLength);
+                flight = new Flight(airplane, priority);
+            }
+            catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error Dialog");
+                alert.setHeaderText("Wrong input");
+                alert.setContentText("Some of fields were empty or had wrong input type");
+
+                alert.showAndWait();
+            }
+
         }
-        return airplane;
+        return flight;
     }
 }

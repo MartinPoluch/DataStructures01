@@ -10,7 +10,7 @@
 
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="377.0" prefWidth="482.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.AddAirplaneController">
    <children>
-      <Label text="Add new airplane">
+      <Label text="Add new flight">
          <VBox.margin>
             <Insets bottom="30.0" />
          </VBox.margin>
@@ -61,14 +61,10 @@
             </TextField>
          </children>
       </HBox>
-      <HBox fx:id="dateTimeBox" alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="600.0" spacing="25.0">
-         <children>
-            <Label text="Date and time of arrival" />
-         </children>
-      </HBox>
+      <HBox fx:id="dateTimeBox" alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="600.0" spacing="25.0" />
       <HBox alignment="CENTER" prefHeight="38.0" prefWidth="482.0" spacing="30.0">
          <children>
-            <Button fx:id="confirmBtn" mnemonicParsing="false" text="Confirm" />
+            <Button fx:id="confirmBtn" mnemonicParsing="false" text="save" />
             <Button fx:id="cancelBtn" mnemonicParsing="false" text="Cancel" />
          </children>
       </HBox>
