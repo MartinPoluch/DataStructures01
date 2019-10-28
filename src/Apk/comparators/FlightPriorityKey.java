@@ -3,6 +3,8 @@ package Apk.comparators;
 import Apk.Airplane;
 import Apk.Flight;
 
+import java.util.Objects;
+
 public class FlightPriorityKey implements Comparable<FlightPriorityKey>{
 
     private Flight flight;
@@ -13,7 +15,14 @@ public class FlightPriorityKey implements Comparable<FlightPriorityKey>{
 
     @Override
     public int compareTo(FlightPriorityKey other) {
-        //TODO treba zohladnit aj cas, pri rovnakej priorite ma prednost lietadlo ktore caka dlhsie (skorej poziadalo o odletovu drahu)
         return this.flight.getPriority().compareTo(other.flight.getPriority());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FlightPriorityKey)) return false;
+        FlightPriorityKey that = (FlightPriorityKey) o;
+        return Objects.equals(this.flight.getPriority(), that.flight.getPriority());
     }
 }

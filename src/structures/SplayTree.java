@@ -297,6 +297,22 @@ public class SplayTree<K extends Comparable<K>, V> {
         return orderedNodes;
     }
 
+    public void inOrder(List<V> data) {
+        Stack<TreeNode<K, V>> stack = new Stack<>();
+        TreeNode<K, V> node = root;
+        while (! stack.isEmpty() || node != null) {
+            if (node != null) {
+                stack.push(node);
+                node = node.getLeftSon();
+            }
+            else {
+                node = stack.pop();
+                data.add(node.getValue());
+                node = node.getRightSon();
+            }
+        }
+    }
+
     /**
      * Vrati prve data ktorych kluc je vacsi ako kluc zadany ako parameter.
      */
@@ -319,24 +335,4 @@ public class SplayTree<K extends Comparable<K>, V> {
         return null;
     }
 
-    public void printLevels() {
-        LinkedList<TreeNode<K, V>> queue = new LinkedList<>();
-        queue.addFirst(root);
-        int level = 0;
-        while (! queue.isEmpty()) {
-            int numberOfNodes = queue.size();
-            while (numberOfNodes > 0) {
-                TreeNode<K, V> actual = queue.removeLast();
-                System.out.println(actual + " ;ls= " + actual.getLeftSon() + " ;rs= " + actual.getRightSon() + " ;p= " + actual.getParent() + " ;level= " + level);
-                if (actual.getLeftSon() != null) {
-                    queue.addFirst(actual.getLeftSon());
-                }
-                if (actual.getRightSon() != null) {
-                    queue.addFirst(actual.getRightSon());
-                }
-                numberOfNodes--;
-            }
-            level++;
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package structures.tester;
 
+import structures.HeapNode;
 import structures.PairingHeap;
 
 import java.util.ArrayList;
@@ -11,57 +12,82 @@ public class PairingHeapTester {
     private PairingHeap<Integer, Integer> myHeap;
     private PriorityQueue<Integer> javaHeap;
     private KeyAndOperationGen generator;
+    private List<HeapNode<Integer, Integer>> usedNodes;
 
-    public PairingHeapTester(int numOfInserts, int numOfDeletes, int numOfFounds) {
-        this(numOfInserts, numOfDeletes, numOfFounds, System.currentTimeMillis());
+    public PairingHeapTester(int numOfInserts, int numOfPops, int numOfIncreases, int numOfDecreases, int namOfDeletes) {
+        this(numOfInserts, numOfPops, numOfIncreases, numOfDecreases, namOfDeletes , System.currentTimeMillis());
     }
 
-    public PairingHeapTester(int numOfInserts, int numOfDeletes, int numOfFounds, long seed) {
+    public PairingHeapTester(int numOfInserts, int numOfPops, int numOfIncreases, int numOfDecreases, int numOfDeletes, long seed) {
         this.myHeap = new PairingHeap<Integer, Integer>();
         this.javaHeap = new PriorityQueue<>();
         this.generator = new KeyAndOperationGen(seed);
+        this.usedNodes = new ArrayList<>(numOfInserts);
         generator.generateKeys(numOfInserts);
-        generator.generateOperations(numOfInserts, numOfDeletes, numOfFounds);
+        generator.generateOperations(numOfInserts, numOfPops, 0, numOfIncreases, numOfDecreases, numOfDeletes);
     }
 
 
     public boolean test() throws DifferentTreesException, WrongImplementationException {
-        //TODO dorobit testovanie metod inccreaseKey, decreseKey and removeNode
         //initialize(numOfInserts, numOfDeletes, numOfFounds, generator);
         for (Operation  operation : generator.getOperations()) {
             switch (operation) {
                 case INSERT: {
                     Integer key = removeRandomKey(generator.getFreeKeys());
-//                    System.out.println("inserted key: " + key);
-                    myHeap.insert(key, key);
+                    HeapNode<Integer, Integer> node = myHeap.insert(key, key);
                     javaHeap.add(key);
+                    usedNodes.add(node);
                     checkEquality("insert");
                     break;
                 }
                 case DELETE: {
                     Integer myVal = myHeap.deleteMin();
                     Integer javaVal = javaHeap.poll();
+                    usedNodes.remove(new HeapNode<>(myVal, myVal, null));
                     if (! myVal.equals(javaVal)) {
                         throw new WrongImplementationException("Deleted different minimal elements", generator.getSeed());
                     }
                     checkEquality("delete");
                     break;
                 }
-                case FIND: {
-                    Integer myVal = myHeap.findMin();
-                    Integer javaVal = javaHeap.peek();
-                    if (! myVal.equals(javaVal)) {
-                        throw new WrongImplementationException("Found different minimal elements", generator.getSeed());
-                    }
-                    checkEquality("delete");
+                case INCREASE: {
+                    HeapNode<Integer, Integer> node = getRandomNode();
+                    int oldPriority = node.getKey();
+                    int newPriority = oldPriority - generator.getGenerator().nextInt(myHeap.getSize());
+                    myHeap.increasePriority(newPriority, node);
+                    javaHeap.remove(oldPriority);
+                    javaHeap.add(newPriority);
+                    checkEquality("increase");
+                    break;
+                }
+                case DECREASE: {
+                    HeapNode<Integer, Integer> node = getRandomNode();
+                    int oldPriority = node.getKey();
+                    int newPriority = oldPriority + generator.getGenerator().nextInt(myHeap.getSize());
+                    myHeap.decreasePriority(newPriority, node);
+                    javaHeap.remove(oldPriority);
+                    javaHeap.add(newPriority);
+                    checkEquality("decrease");
+                    break;
+                }
+                case DELETE_HEAP_NODE: {
+                    HeapNode<Integer, Integer> node = getRandomNode();
+                    myHeap.deleteNode(node);
+                    javaHeap.remove(node.getKey());
+                    checkEquality("delete heap node");
                     break;
                 }
             }
-            //System.out.println(myTree.getSize());
         }
         return true;
     }
 
+
+
+    private HeapNode<Integer, Integer> getRandomNode() {
+        int index = generator.getGenerator().nextInt(usedNodes.size());
+        return usedNodes.get(index);
+    }
 
     private int removeRandomKey(List<Integer> keys) {
         int index = generator.getGenerator().nextInt(keys.size());

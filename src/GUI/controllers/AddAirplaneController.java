@@ -1,4 +1,4 @@
-package GUI;
+package GUI.controllers;
 
 import Apk.Airplane;
 import Apk.Flight;

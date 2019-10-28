@@ -67,8 +67,7 @@ public class RunwayType {
         }
     }
 
-
-
-
-
+    public SplayTree<FlightCodeKey, Flight> getWaitingFlights() {
+        return waitingFlights;
+    }
 }

@@ -83,6 +83,14 @@ public class Flight {
         return airplane.getCode();
     }
 
+    public String getType() {
+        return airplane.getType();
+    }
+
+    public Integer getMinLength() {
+        return airplane.getMinRunwayLength();
+    }
+
     @Override
     public String toString() {
         return airplane + " " + priority;

@@ -10,7 +10,7 @@ import java.util.Queue;
  */
 public class PairingHeap<K extends Comparable<K>, V> {
 
-    private TreeNode<K, V> root;
+    private HeapNode<K, V> root;
     private int size;
 
     public PairingHeap() {
@@ -25,11 +25,11 @@ public class PairingHeap<K extends Comparable<K>, V> {
     /**
      * Operacia paruj.
      */
-    private TreeNode<K, V> meld(TreeNode<K, V> node1, TreeNode<K, V> node2) {
+    private HeapNode<K, V> meld(HeapNode<K, V> node1, HeapNode<K, V> node2) {
         if ((node1 != null) && (node2 != null)) {
-            TreeNode<K, V> higherPriority;
-            TreeNode<K, V> lowerPriority;
-            if (node1.getKey().compareTo(node2.getKey()) < 0) {
+            HeapNode<K, V> higherPriority;
+            HeapNode<K, V> lowerPriority;
+            if (node1.compareTo(node2) < 0) {
                 higherPriority = node1;
                 lowerPriority = node2;
             }
@@ -38,7 +38,7 @@ public class PairingHeap<K extends Comparable<K>, V> {
                 lowerPriority = node1;
             }
 
-            TreeNode<K, V> oldLeftSon = higherPriority.getLeftSon();
+            HeapNode<K, V> oldLeftSon = (HeapNode<K, V>) higherPriority.getLeftSon();
             higherPriority.setLeftSon(lowerPriority);
             lowerPriority.setRightSon(oldLeftSon);
             return higherPriority;
@@ -46,11 +46,11 @@ public class PairingHeap<K extends Comparable<K>, V> {
         return null;
     }
 
-    public void insert(K priority, V value) {
+    public HeapNode<K, V> insert(K priority, V value) {
         if ((priority == null) || (value == null)) {
-            return;
+            return null;
         }
-        TreeNode<K, V> insertedNode = new TreeNode<>(priority, value, null);
+        HeapNode<K, V> insertedNode = new HeapNode<>(priority, value, null);
         if (root == null) {
             root = insertedNode;
         }
@@ -58,6 +58,7 @@ public class PairingHeap<K extends Comparable<K>, V> {
             root = meld(insertedNode, root);
         }
         size++;
+        return insertedNode;
     }
 
     public V findMin() {
@@ -68,13 +69,14 @@ public class PairingHeap<K extends Comparable<K>, V> {
      * Priorita nie je unikatna. Ak maju prvky rovnaku priority tak sa vyberie prvok ktory sa ako prvy vkladal (FIFO).
      */
     public V deleteMin() {
-        TreeNode<K, V> minNode = root;
+        //TODO pouzi metodu getSons z heapNodu
+        HeapNode<K, V> minNode = root;
         if (minNode != null) {
-            TreeNode<K, V> parent = root.getLeftSon();
+            HeapNode<K, V> parent = (HeapNode<K, V>) root.getLeftSon();
             if (parent != null) {
-                Queue<TreeNode<K, V>> queue = new LinkedList<>();
+                Queue<HeapNode<K, V>> queue = new LinkedList<>();
                 while (true) {
-                    TreeNode<K, V> rightSon = parent.getRightSon();
+                    HeapNode<K, V> rightSon = (HeapNode<K, V>) parent.getRightSon();
                     parent.makeRoot(); // parent = null
                     parent.setRightSon(null);
                     queue.add(parent);
@@ -85,9 +87,9 @@ public class PairingHeap<K extends Comparable<K>, V> {
                 }
 
                 while (queue.size() > 1) {
-                    TreeNode<K, V> heap1 = queue.poll();
-                    TreeNode<K, V> heap2 = queue.poll();
-                    TreeNode<K, V> mergedHeap = meld(heap1, heap2);
+                    HeapNode<K, V> heap1 = queue.poll();
+                    HeapNode<K, V> heap2 = queue.poll();
+                    HeapNode<K, V> mergedHeap = meld(heap1, heap2);
                     queue.add(mergedHeap);
                 }
                 root = queue.poll();
@@ -103,37 +105,79 @@ public class PairingHeap<K extends Comparable<K>, V> {
         }
     }
 
-    public void increasePriority(K newPriority, TreeNode<K, V> node) {
-//        K oldPriority = node.getKey();
-//        if (oldPriority.compareTo(newPriority) < 0) { // skontrolujem validnost parametrov, ci naozaj nova priorita bude mensia hodnota ako stara priorita
-//            node.setKey(newPriority);
-//            if (node != root) { // ak node je root tak nie je co pokazit, nemoze sa stat ze by jeho nova priorita bola lepsia ako priorita jeho rodica (lebo nema rodica)
-//                TreeNode<K, V> parent = node.getParent();
-//                boolean changeNeeded = (parent.getKey().compareTo(newPriority) < 0);
-//                if (changeNeeded) {
-//                    if (node.isLeftSon()) {
-//                        parent.setLeftSon(null);
-//                    }
-//                    else {
-//                        parent.setRightSon(null);
-//                    }
-//                    node.makeRoot(); // nastavim mu rodica na null
-//                    root = meld(node, root);
-//                }
-//            }
-//        }
-        //TODO
+    public void increasePriority(K newPriority, HeapNode<K, V> node) {
+        K oldPriority = node.getKey();
+        if (node.hasBestPriority() || (oldPriority.compareTo(newPriority) > 0 && node != root)) {
+            node.setKey(newPriority);
+            HeapNode<K, V> heapParent = node.getHeapParent();
+            if (heapParent != null && node.compareTo(heapParent) < 0) {
+                HeapNode<K, V> directParent = (HeapNode<K, V>) node.getParent();
+                if (node.isRightSon()) {
+                    directParent.setRightSon(node.getRightSon());
+                }
+                else {
+                    directParent.setLeftSon(node.getRightSon());
+                }
+                node.makeRoot();
+                root = meld(node, root);
+            }
+        }
     }
 
     /**
      * Data (V) si musia pamatat referenciu na haldu.
      */
-    public void decresePriority(K newPriority, TreeNode<K, V> node) {
+    public void decreasePriority(K newPriority, HeapNode<K, V> node) {
         K oldPriority = node.getKey();
-        //TODO
+        if (oldPriority.compareTo(newPriority) < 0) {
+            node.setKey(newPriority);
+            LinkedList<HeapNode<K, V>> sons = node.getSons();
+            boolean ok = true;
+            for (HeapNode<K, V> son : sons) {
+                if (node.compareTo(son) > 0) {
+                    ok = false;
+                    break;
+                }
+            }
+
+            if (ok) {
+                return;
+            }
+            HeapNode<K, V> parent = (HeapNode<K, V>) node.getParent();
+            HeapNode<K, V> rightSon = (HeapNode<K, V>) node.getRightSon();
+            boolean isRightSon = node.isRightSon();
+
+            node.setLeftSon(null);
+            sons.addFirst(node);
+
+            while (sons.size() > 1) {
+                HeapNode<K, V> son1 = sons.removeFirst();
+                son1.makeRoot();
+                son1.setRightSon(null);
+
+                HeapNode<K, V> son2 = sons.removeFirst();
+                son2.makeRoot();
+                son2.setRightSon(null);
+
+                HeapNode<K, V> heap = meld(son1, son2);
+                sons.addLast(heap);
+            }
+
+            HeapNode<K, V> replaceNode = sons.removeFirst();
+            if (parent == null) {
+                root = replaceNode;
+            }
+            else {
+                if (isRightSon) {
+                    parent.setRightSon(replaceNode);
+                }
+                else {
+                    parent.setLeftSon(replaceNode);
+                }
+                replaceNode.setRightSon(rightSon);
+            }
+        }
     }
-
-
 
     public void deleteNode(HeapNode<K, V> node) {
         node.setHasBestPriority(true);

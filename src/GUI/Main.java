@@ -1,6 +1,7 @@
 package GUI;
 
 import Apk.Airport;
+import GUI.controllers.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -10,7 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import java.awt.*;
 import java.io.File;
@@ -44,7 +44,7 @@ public class Main extends Application {
         Button openRunwaysFileBtn = new Button("    Edit runways file    ");
         openRunwaysFileBtn.setOnAction(e -> openRunwaysFile());
         vBox.getChildren().add(openRunwaysFileBtn);
-        Scene scene = new Scene(vBox, 300, 275);
+        Scene scene = new Scene(vBox, 300, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -52,11 +52,11 @@ public class Main extends Application {
     private void createNewAirport(LocalDateTime localDateTime)  {
         //System.out.println(localDateTime);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/MainView.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/views/MainView.fxml"));
             Parent root = (Parent) fxmlLoader.load();
             MainController mainController = fxmlLoader.getController();
             mainController.setAirport(new Airport(localDateTime));
-            primaryStage.setScene(new Scene(root, 300, 275));
+            primaryStage.setScene(new Scene(root, 600, 400));
         }
         catch (Exception e) {
             e.printStackTrace();

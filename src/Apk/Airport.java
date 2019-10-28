@@ -31,6 +31,26 @@ public class Airport {
         this.readNumbersOfRunways();
     }
 
+    public void addTime(int amount, String unit) {
+        switch (unit) {
+            case "minutes": {
+                actualDateTime = actualDateTime.plusMinutes(amount);
+                break;
+            }
+            case "hour": {
+                actualDateTime = actualDateTime.plusHours(amount);
+                break;
+            }
+            case "day": {
+                actualDateTime = actualDateTime.plusDays(amount);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+
     private void readNumbersOfRunways() {
         //TODO, kedze v subore su data ulozene vzostupne, splay strom bude na zaciatku zdegenerovany, riesenie ???
         File numberOfRunways = new File("src\\Apk\\runways.txt");
@@ -50,7 +70,6 @@ public class Airport {
         }
     }
 
-
     public void addFlight(Flight flight) {
         if (flight != null) {
             flight.setArrival(actualDateTime);
@@ -61,6 +80,17 @@ public class Airport {
             arrivedFlights.insert(new FlightCodeKey(flight), flight);
         }
         printAll();
+    }
+
+    public Flight findFlightOnRunway(FlightCodeKey flightKey, RunwayKey runwayKey) {
+        RunwayType runwayType = runways.find(runwayKey);
+        if (runwayType != null) {
+            System.out.println("FOUND");
+            return runwayType.getWaitingFlights().find(flightKey);
+        }
+        else {
+            return null;
+        }
     }
 
     public void requestRunway(String code) throws IllegalArgumentException, NoSuchElementException {
@@ -100,7 +130,22 @@ public class Airport {
     }
 
     public String getActualDateTimeValue() {
-        return actualDateTime.toLocalDate()  + " " + actualDateTime.toLocalTime();
+        return actualDateTime.toLocalDate() + " " + actualDateTime.toLocalTime();
+    }
+
+    public SplayTree<FlightCodeKey, Flight> findWaitingFlightsForRunway(int runwayLength) throws IllegalArgumentException{
+        RunwayKey runwayKey = new RunwayKey(new RunwayType(runwayLength));
+        RunwayType runwayType = runways.find(runwayKey);
+        if (runwayType != null) {
+            return runwayType.getWaitingFlights();
+        }
+        else {
+            throw new IllegalArgumentException("There is no runway of this length.");
+        }
+    }
+
+    public SplayTree<FlightCodeKey, Flight> getWaitingFlights() {
+        return waitingFlights;
     }
 
     private void printAll() {

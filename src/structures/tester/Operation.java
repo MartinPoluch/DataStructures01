@@ -3,5 +3,8 @@ package structures.tester;
 public enum Operation {
     INSERT,
     DELETE,
-    FIND;
+    FIND,
+    INCREASE,
+    DECREASE,
+    DELETE_HEAP_NODE;
 }
