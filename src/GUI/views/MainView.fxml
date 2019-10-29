@@ -19,8 +19,9 @@
       </HBox>
       <Button fx:id="addAirplaneBtn" mnemonicParsing="false" prefWidth="250.0" text="Add flight" />
       <Button fx:id="addRunwayRequestBtn" mnemonicParsing="false" prefWidth="250.0" text="Request runway" />
+      <Button fx:id="addFlightDepartureBtn" mnemonicParsing="false" prefWidth="250.0" text="Departure of flight" />
       <Button fx:id="findWaitingFlightBtn" mnemonicParsing="false" prefWidth="250.0" text="Find waiting flight" />
-      <Button fx:id="showWaitingFlightsBtn" mnemonicParsing="false" prefHeight="31.0" prefWidth="250.0" text="Show all waiting filghts" />
+      <Button fx:id="showWaitingFlightsBtn" mnemonicParsing="false" prefHeight="31.0" prefWidth="250.0" text="Show all waiting flights" />
       <Button fx:id="showWFForRunwayBtn" mnemonicParsing="false" prefWidth="250.0" text="Show waiting flights for runway" />
       <Button fx:id="generateDataBtn" mnemonicParsing="false" prefWidth="250.0" text="Generate random data">
          <VBox.margin>

@@ -15,7 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 import structures.SplayTree;
 
 import java.util.Optional;
@@ -25,6 +24,7 @@ public class MainController {
 
     @FXML private Button addAirplaneBtn;
     @FXML private Button addRunwayRequestBtn;
+    @FXML private Button addFlightDepartureBtn;
     @FXML private Button findWaitingFlightBtn;
     @FXML private Button showWaitingFlightsBtn;
     @FXML private Button showWFForRunwayBtn; // show waiting flights for runway
@@ -40,7 +40,8 @@ public class MainController {
     public void initialize() {
         addAirplaneBtn.setOnAction(e -> openAddAirplaneForm());
         addRunwayRequestBtn.setOnAction(e -> openRunwayRequestForm());
-        showWaitingFlightsBtn.setOnAction(e -> showFlights(airport.getWaitingFlights()));
+        addFlightDepartureBtn.setOnAction(e -> openDepartureForm());
+        showWaitingFlightsBtn.setOnAction(e -> showFlights(airport.getAllWaitingFlights()));
         findWaitingFlightBtn.setOnAction(e -> openFindWaitingFLightForm());
         showWFForRunwayBtn.setOnAction(e -> openShowWForRunwayForm());
         generateDataBtn.setOnAction(e -> openGenerateDataForm());
@@ -79,8 +80,55 @@ public class MainController {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
+    }
+
+    private void openRunwayRequestForm() {
+        try {
+            Stage form = new Stage();
+            form.setTitle("Request runway");
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/views/RequestRunwayView.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
+            form.setScene(new Scene(root));
+            RequestRunwayController controller = fxmlLoader.getController();
+            form.showAndWait();
+            if (controller.isConfirmed()) {
+                String code = controller.getCode();
+                Integer priority = controller.getPriority();
+                airport.requestRunway(code, priority);
+            }
+        }
+        catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Request cannot be done");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+            //e.printStackTrace();
+        }
+    }
+
+    private void openDepartureForm() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Flight departure");
+        dialog.setHeaderText("Insert information about flight departure.");
+        dialog.setContentText("Enter unique code of flight:");
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(code -> {
+            try {
+                airport.addFlightDeparture(code);
+            }
+            catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Flight not found");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+                //e.printStackTrace();
+            }
+        });
     }
 
     private void openFindWaitingFLightForm() {
@@ -100,7 +148,7 @@ public class MainController {
                 Integer runwayLength = controller.getRunwayType();
                 Flight foundFlight = null;
                 if (runwayLength == null) {
-                    SplayTree<FlightCodeKey, Flight> allWaitingFlight = airport.getWaitingFlights();
+                    SplayTree<FlightCodeKey, Flight> allWaitingFlight = airport.getAllWaitingFlights();
                     foundFlight = allWaitingFlight.find(flightKey);
                 }
                 else {
@@ -117,63 +165,15 @@ public class MainController {
                     alert.showAndWait();
                 }
             }
-
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void openRunwayRequestForm() {
-        try {
-            Stage form = new Stage();
-            form.setTitle("Request runway");
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/views/RequestRunwayView.fxml"));
-            System.out.println(fxmlLoader);
-            Parent root = (Parent) fxmlLoader.load();
-            System.out.println(root);
-            form.setScene(new Scene(root));
-            RequestRunwayController controller = fxmlLoader.getController();
-            System.out.println(controller);
-            form.showAndWait();
-            if (controller.isConfirmed()) {
-                String code = controller.getCode();
-                Integer priority = controller.getPriority();
-                airport.requestRunway(code, priority);
-            }
-        }
-        catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Request cannot be done");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-            e.printStackTrace();
-            e.printStackTrace();
-        }
-//        TextInputDialog dialog = new TextInputDialog("");
-//
-//        dialog.setTitle("Request runway");
-//        dialog.setHeaderText("Insert request for runway.");
-//        dialog.setContentText("Enter airplane unique code:");
-//
-//        Optional<String> result = dialog.showAndWait();
-//
-//        result.ifPresent(code -> {
-//            try {
-//                airport.requestRunway(code);
-//            }
-//            catch (Exception e) {
-//                Alert alert = new Alert(Alert.AlertType.ERROR);
-//                alert.setTitle("Error");
-//                alert.setHeaderText("Request cannot be done");
-//                alert.setContentText(e.getMessage());
-//                alert.showAndWait();
-//                e.printStackTrace();
-//            }
-//        });
-    }
-
+    /**
+     * Nepovinna operacia
+     */
     private void openShowWForRunwayForm() {
         TextInputDialog dialog = new TextInputDialog("");
 
@@ -194,7 +194,7 @@ public class MainController {
                 alert.setTitle("Error");
                 alert.setHeaderText("Runway not found");
                 alert.showAndWait();
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         });
     }
@@ -218,7 +218,7 @@ public class MainController {
                 alert.setTitle("Error");
                 alert.setHeaderText("Wrong input");
                 alert.showAndWait();
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         });
     }

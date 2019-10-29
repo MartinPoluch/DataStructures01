@@ -17,8 +17,8 @@ public class Airport {
     private SplayTree<RunwayKey, RunwayType> runways;
     private SplayTree<AirplaneCodeKey, Airplane> allAirplanes;
     private SplayTree<FlightCodeKey, Flight> arrivedFlights; // lietadla ktore nemaju definovany cas poziadania o odletovu drahu (este neprileteli)
-    private SplayTree<FlightCodeKey, Flight> waitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
-    private SplayTree<FlightCodeKey, Flight> flightsOnRunway;
+    private SplayTree<FlightCodeKey, Flight> allWaitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
+    private SplayTree<FlightCodeKey, Flight> allFlightsOnRunway;
 
     private DataGenerator dataGenerator;
 
@@ -27,9 +27,9 @@ public class Airport {
         this.actualDateTime = datetime;
         this.allAirplanes = new SplayTree<>();
         this.arrivedFlights = new SplayTree<>();
-        this.waitingFlights = new SplayTree<>();
+        this.allWaitingFlights = new SplayTree<>();
         this.runways = new SplayTree<>();
-        this.flightsOnRunway = new SplayTree<>();
+        this.allFlightsOnRunway = new SplayTree<>();
         this.dataGenerator = new DataGenerator();
         this.readNumbersOfRunways();
     }
@@ -90,17 +90,6 @@ public class Airport {
         printAll();
     }
 
-    public Flight findFlightOnRunway(FlightCodeKey flightKey, RunwayKey runwayKey) {
-        RunwayType runwayType = runways.find(runwayKey);
-        if (runwayType != null) {
-            System.out.println("FOUND");
-            return runwayType.getWaitingFlights().find(flightKey);
-        }
-        else {
-            return null;
-        }
-    }
-
     public void requestRunway(String code, int priority) throws IllegalArgumentException, NoSuchElementException {
         FlightCodeKey key = new FlightCodeKey(new Flight(code));
         Flight flight = arrivedFlights.remove(key); // lietadlo musi byt priletene aby mohlo poziadat o drahu
@@ -123,26 +112,49 @@ public class Airport {
         printAll();
     }
 
+    public void addFlightDeparture(String code) throws IllegalArgumentException{
+        FlightCodeKey key = new FlightCodeKey(new Flight(code));
+        Flight flight = allFlightsOnRunway.remove(key);
+        if (flight != null) {
+            flight.setDeparture(actualDateTime);
+            flight.departure();
+        }
+        else {
+            throw new IllegalArgumentException("Flight with code " + code + " is not on runway");
+        }
+    }
+
+    public Flight findFlightOnRunway(FlightCodeKey flightKey, RunwayKey runwayKey) {
+        RunwayType runwayType = runways.find(runwayKey);
+        if (runwayType != null) {
+            return runwayType.getWaitingFlights().find(flightKey);
+        }
+        else {
+            return null;
+        }
+    }
+
+
     /**
      * Lietadla sa budu do zoznamu vsetkych cakajucich lietadiel pridavat len z triedy runWayType
      */
     public void addFlightToWaiting(Flight flight) {
-        waitingFlights.insert(new FlightCodeKey(flight), flight);
+        allWaitingFlights.insert(new FlightCodeKey(flight), flight);
     }
 
     public void removeFlightFromWaiting(Flight flight) {
-        waitingFlights.remove(new FlightCodeKey(flight));
+        allWaitingFlights.remove(new FlightCodeKey(flight));
     }
 
     /**
      * Lietadla sa budu do zoznamu vsetkych lietadiel na drahe pridavat len z triedy runWayType
      */
     public void addFlightToRunway(Flight flight) {
-        flightsOnRunway.insert(new FlightCodeKey(flight), flight);
+        allFlightsOnRunway.insert(new FlightCodeKey(flight), flight);
     }
 
     public void removeFlightFromRunway(Flight flight) {
-        flightsOnRunway.remove(new FlightCodeKey(flight));
+        allFlightsOnRunway.remove(new FlightCodeKey(flight));
     }
 
     public String getActualDateTimeValue() {
@@ -160,16 +172,16 @@ public class Airport {
         }
     }
 
-    public SplayTree<FlightCodeKey, Flight> getWaitingFlights() {
-        return waitingFlights;
+    public SplayTree<FlightCodeKey, Flight> getAllWaitingFlights() {
+        return allWaitingFlights;
     }
 
     private void printAll() {
 //        System.out.println("\n--------------------------------------------------------------------------\n");
 //        printSplayTree("All planes", allAirplanes);
 //        printSplayTree("Arrived flights", arrivedFlights);
-//        printSplayTree("Waiting flight", waitingFlights);
-//        printSplayTree("Flights on runway ", flightsOnRunway);
+//        printSplayTree("Waiting flight", allWaitingFlights);
+//        printSplayTree("Flights on runway ", allFlightsOnRunway);
     }
 
     private <K extends Comparable<K>, V> void printSplayTree(String name, SplayTree<K, V> splayTree) {

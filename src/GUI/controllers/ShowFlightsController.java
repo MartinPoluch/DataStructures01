@@ -1,6 +1,8 @@
 package GUI.controllers;
 
 import Apk.Flight;
+import Apk.Runway;
+import Apk.RunwayType;
 import Apk.comparators.FlightCodeKey;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +23,8 @@ public class ShowFlightsController {
     @FXML private TableColumn<Flight, LocalDateTime> runwayRequestCol;
     @FXML private TableColumn<Flight, LocalDateTime> departureCol;
     @FXML private TableColumn<Flight, Integer> priorityCol;
+    @FXML private TableColumn<Flight, RunwayType> runwayType;
+    @FXML private TableColumn<Flight, Runway> runway;
 
     @FXML private TableView<Flight> flightsTab;
     @FXML private ObservableList<Flight> flights;
@@ -34,6 +38,8 @@ public class ShowFlightsController {
         runwayRequestCol.setCellValueFactory(new PropertyValueFactory<>("runwayRequest"));
         departureCol.setCellValueFactory(new PropertyValueFactory<>("departure"));
         priorityCol.setCellValueFactory(new PropertyValueFactory<>("priority"));
+        runwayType.setCellValueFactory(new PropertyValueFactory<>("runwayType"));
+        runway.setCellValueFactory(new PropertyValueFactory<>("runway"));
     }
 
     public void showFlights(SplayTree<FlightCodeKey, Flight> tree) {

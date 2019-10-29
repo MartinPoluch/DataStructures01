@@ -14,7 +14,7 @@ public class RunwayType {
     private int length;
     private SplayTree<FlightCodeKey, Flight> waitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
     private PairingHeap<FlightPriorityKey, Flight> waitingQueue; // lietadla ktore cakaju na pridelenie odletovej drahy
-    private SplayTree<FlightCodeKey, Flight> flightsOnRunway;
+    private SplayTree<FlightCodeKey, Flight> flightsOnRunway; //TODO potrebujem vobec tento atribut ???
     private ArrayList<Runway> runways;
     private LinkedList<Integer> freeRunways; // zoznam volny drah (cisla reprezentuju indexy drah)
     private Airport airport;
@@ -50,24 +50,52 @@ public class RunwayType {
         }
 
         flight.setRunwayType(this);
-        Airplane airplane = flight.getAirplane();
-        if (! freeRunways.isEmpty()) { // vsetky drahy su obsadene
-            int runwayId = freeRunways.removeFirst();
-            Runway freeRunway = runways.get(runwayId);
-            flight.setRunway(freeRunway);
-            flightsOnRunway.insert(new FlightCodeKey(flight), flight);
-            airport.addFlightToRunway(flight);
-            airplane.setState(State.ON_RUN_WAY);
+        if (! freeRunways.isEmpty()) { // existuje volna draha
+            addFlightOnRunway(flight);
         }
         else { // nie je ziadna volna draha, lietadlo sa zaradi medzi cakajuce lietadla
             waitingFlights.insert(new FlightCodeKey(flight), flight);
             waitingQueue.insert(new FlightPriorityKey(flight), flight);
             airport.addFlightToWaiting(flight);
-            airplane.setState(State.WAITING);
+            flight.getAirplane().setState(State.WAITING);
         }
+    }
+
+    /**
+     * Priradi lietadlo konkretnu drahu.
+     */
+    private void addFlightOnRunway(Flight flight) {
+        int runwayId = freeRunways.removeFirst();
+        Runway freeRunway = runways.get(runwayId);
+        freeRunway.occupy(flight);
+        flight.setRunway(freeRunway);
+        flightsOnRunway.insert(new FlightCodeKey(flight), flight);
+        airport.addFlightToRunway(flight);
+        flight.getAirplane().setState(State.ON_RUN_WAY);
+    }
+
+    public void departure(Flight departureFlight) {
+        flightsOnRunway.remove(new FlightCodeKey(departureFlight)); // flight je skutocne lietadlo zo vsetkymi vypisanymi atributmy
+        Runway runway = departureFlight.getRunway();
+        runway.free(); // draha sa uvolni
+        freeRunways.addLast(runway.getId()); // id novo uvolnenej drahy sa prida medzi idcka volnych drah;
+        System.out.println("departure: " + departureFlight);
+        if (waitingQueue.getSize() > 0) {
+            Flight nextFlight = waitingQueue.deleteMin();
+            waitingFlights.remove(new FlightCodeKey(nextFlight));
+            airport.removeFlightFromWaiting(nextFlight);
+            addFlightOnRunway(nextFlight);
+            System.out.println("next flight: " + nextFlight);
+        }
+
     }
 
     public SplayTree<FlightCodeKey, Flight> getWaitingFlights() {
         return waitingFlights;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(length);
     }
 }

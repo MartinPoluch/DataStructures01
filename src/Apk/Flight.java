@@ -91,6 +91,17 @@ public class Flight {
         return airplane.getMinRunwayLength();
     }
 
+    public void departure() {
+        if (runwayType != null && runway != null && airplane.getState() == State.ON_RUN_WAY) {
+            airplane.setState(State.INACTIVE);// ON_RUN_WAY -> INACTIVE
+            runwayType.departure(this);
+        }
+        else {
+            System.err.println("Error, airplane cannot departure, because runwayType or runway is null");
+        }
+    }
+
+
     @Override
     public String toString() {
         return airplane + " " + priority;

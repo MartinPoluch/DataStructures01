@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class Runway {
 
-    private int id;
+    private final int id;
     private Flight flight;
     private LinkedList<Flight> flightsHistory;
 
@@ -12,6 +12,10 @@ public class Runway {
         this.id = id;
         this.flight = null;
         this.flightsHistory = new LinkedList<>();
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void occupy(Flight flight) {
@@ -22,5 +26,10 @@ public class Runway {
         flightsHistory.addLast(flight);
         flight = null;
         return flightsHistory.getLast();
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(id);
     }
 }
