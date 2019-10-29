@@ -16,11 +16,7 @@ public class AddAirplaneController {
     @FXML private TextField type;
     @FXML private TextField code;
     @FXML private TextField minLength;
-    @FXML private TextField priority;
-    @FXML private HBox dateTimeBox;
     private boolean valid;
-
-
 
     public void initialize() {
         valid = false;
@@ -39,14 +35,12 @@ public class AddAirplaneController {
 
 
     public Flight createAirplane() {
-        //TODO mozno pridat validaciu dat
         Flight flight = null;
         if (valid) {
             try {
                 int minLength = Integer.parseInt(this.minLength.getText());
-                int priority = Integer.parseInt(this.priority.getText());
                 Airplane airplane = new Airplane(type.getText(), code.getText(), minLength);
-                flight = new Flight(airplane, priority);
+                flight = new Flight(airplane);
             }
             catch (Exception e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);

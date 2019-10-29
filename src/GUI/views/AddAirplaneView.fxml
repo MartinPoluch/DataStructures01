@@ -51,22 +51,14 @@
             </TextField>
          </children>
       </HBox>
-      <HBox alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="600.0" spacing="25.0">
-         <children>
-            <Label text="Priority" />
-            <TextField fx:id="priority">
-               <HBox.margin>
-                  <Insets right="20.0" />
-               </HBox.margin>
-            </TextField>
-         </children>
-      </HBox>
-      <HBox fx:id="dateTimeBox" alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="600.0" spacing="25.0" />
       <HBox alignment="CENTER" prefHeight="38.0" prefWidth="482.0" spacing="30.0">
          <children>
             <Button fx:id="confirmBtn" mnemonicParsing="false" text="save" />
             <Button fx:id="cancelBtn" mnemonicParsing="false" text="Cancel" />
          </children>
+         <VBox.margin>
+            <Insets top="30.0" />
+         </VBox.margin>
       </HBox>
    </children>
    <opaqueInsets>

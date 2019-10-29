@@ -36,7 +36,9 @@ public class FindWaitingFlightController {
 
     public Integer getRunwayType() {
         try {
-            return Integer.parseInt(runwayInput.getText()); // ak je to cislo tak vrati int
+            String[] input = runwayInput.getText().split("-"); // identifikator drahy je v tvare dlzkaDrahy-id (napr. : 1000-1)
+            String runwayLength = input[0];
+            return Integer.parseInt(runwayLength); // ak je to cislo tak vrati int
         }
         catch (Exception e) {
             return null;// inak vrati null

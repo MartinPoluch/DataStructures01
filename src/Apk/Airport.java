@@ -3,7 +3,6 @@ package Apk;
 import Apk.comparators.AirplaneCodeKey;
 import Apk.comparators.FlightCodeKey;
 import Apk.comparators.RunwayKey;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 import structures.SplayTree;
 import structures.TreeNode;
 
@@ -21,6 +20,9 @@ public class Airport {
     private SplayTree<FlightCodeKey, Flight> waitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
     private SplayTree<FlightCodeKey, Flight> flightsOnRunway;
 
+    private DataGenerator dataGenerator;
+
+
     public Airport(LocalDateTime datetime) {
         this.actualDateTime = datetime;
         this.allAirplanes = new SplayTree<>();
@@ -28,6 +30,7 @@ public class Airport {
         this.waitingFlights = new SplayTree<>();
         this.runways = new SplayTree<>();
         this.flightsOnRunway = new SplayTree<>();
+        this.dataGenerator = new DataGenerator();
         this.readNumbersOfRunways();
     }
 
@@ -53,6 +56,7 @@ public class Airport {
 
     private void readNumbersOfRunways() {
         //TODO, kedze v subore su data ulozene vzostupne, splay strom bude na zaciatku zdegenerovany, riesenie ???
+        int biggestRunway = 0; //TODO mohol by to byt atribut a pri pridavani lietadla sa bude checkovat dlzka
         File numberOfRunways = new File("src\\Apk\\runways.txt");
         try {
             Scanner scanner = new Scanner(numberOfRunways);
@@ -60,10 +64,14 @@ public class Airport {
                 String line = scanner.nextLine();
                 String[] parseLine = line.split(" : ");
                 int length = Integer.parseInt(parseLine[0]);
+                if (length > biggestRunway) {
+                    biggestRunway = length;
+                }
                 int quantity = Integer.parseInt(parseLine[1]);
                 RunwayType runwayType = new RunwayType(length, quantity, this);
                 runways.insert(new RunwayKey(runwayType), runwayType);
             }
+            dataGenerator.setMaxRunwayLength(biggestRunway);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -93,13 +101,15 @@ public class Airport {
         }
     }
 
-    public void requestRunway(String code) throws IllegalArgumentException, NoSuchElementException {
+    public void requestRunway(String code, int priority) throws IllegalArgumentException, NoSuchElementException {
         FlightCodeKey key = new FlightCodeKey(new Flight(code));
-        Flight flight = arrivedFlights.remove(key);
+        Flight flight = arrivedFlights.remove(key); // lietadlo musi byt priletene aby mohlo poziadat o drahu
         if (flight != null) {
             int airplaneLength = flight.getAirplane().getMinRunwayLength();
             RunwayType runwayType = runways.findFirstBiggerValue(new RunwayKey(new RunwayType(airplaneLength)));
             if (runwayType != null) {
+                flight.setPriority(priority);
+                flight.setRunwayRequest(actualDateTime);
                 runwayType.request(flight);
             }
             else {
@@ -113,6 +123,9 @@ public class Airport {
         printAll();
     }
 
+    /**
+     * Lietadla sa budu do zoznamu vsetkych cakajucich lietadiel pridavat len z triedy runWayType
+     */
     public void addFlightToWaiting(Flight flight) {
         waitingFlights.insert(new FlightCodeKey(flight), flight);
     }
@@ -121,6 +134,9 @@ public class Airport {
         waitingFlights.remove(new FlightCodeKey(flight));
     }
 
+    /**
+     * Lietadla sa budu do zoznamu vsetkych lietadiel na drahe pridavat len z triedy runWayType
+     */
     public void addFlightToRunway(Flight flight) {
         flightsOnRunway.insert(new FlightCodeKey(flight), flight);
     }
@@ -149,11 +165,11 @@ public class Airport {
     }
 
     private void printAll() {
-        System.out.println("\n--------------------------------------------------------------------------\n");
-        printSplayTree("All planes", allAirplanes);
-        printSplayTree("Arrived flights", arrivedFlights);
-        printSplayTree("Waiting flight", waitingFlights);
-        printSplayTree("Flights on runway ", flightsOnRunway);
+//        System.out.println("\n--------------------------------------------------------------------------\n");
+//        printSplayTree("All planes", allAirplanes);
+//        printSplayTree("Arrived flights", arrivedFlights);
+//        printSplayTree("Waiting flight", waitingFlights);
+//        printSplayTree("Flights on runway ", flightsOnRunway);
     }
 
     private <K extends Comparable<K>, V> void printSplayTree(String name, SplayTree<K, V> splayTree) {
@@ -163,4 +179,14 @@ public class Airport {
         }
         System.out.println("\n");
     }
+
+    public void generateData(int waitingFlights) {
+        for (int i = 0; i < waitingFlights; i++) {
+            Flight flight = dataGenerator.randomFlight();
+            addFlight(flight);
+            requestRunway(flight.getCode(), flight.getPriority());
+        }
+    }
+
+
 }

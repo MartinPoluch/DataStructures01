@@ -69,21 +69,25 @@ public class PairingHeap<K extends Comparable<K>, V> {
      * Priorita nie je unikatna. Ak maju prvky rovnaku priority tak sa vyberie prvok ktory sa ako prvy vkladal (FIFO).
      */
     public V deleteMin() {
-        //TODO pouzi metodu getSons z heapNodu
+        HeapNode<K, V> deletedNode = deleteMinNode();
+        return (deletedNode == null) ? null : deletedNode.getValue();
+    }
+
+    public HeapNode<K, V> deleteMinNode() {
         HeapNode<K, V> minNode = root;
-        if (minNode != null) {
-            HeapNode<K, V> parent = (HeapNode<K, V>) root.getLeftSon();
-            if (parent != null) {
+        if (minNode != null) { // ak root je null nie je co zmazat
+            HeapNode<K, V> son = (HeapNode<K, V>) root.getLeftSon();
+            if (son != null) {
                 Queue<HeapNode<K, V>> queue = new LinkedList<>();
                 while (true) {
-                    HeapNode<K, V> rightSon = (HeapNode<K, V>) parent.getRightSon();
-                    parent.makeRoot(); // parent = null
-                    parent.setRightSon(null);
-                    queue.add(parent);
+                    HeapNode<K, V> rightSon = (HeapNode<K, V>) son.getRightSon();
+                    son.makeRoot(); // parent = null
+                    son.setRightSon(null);
+                    queue.add(son);
                     if (rightSon == null) {
                         break;
                     }
-                    parent = rightSon;
+                    son = rightSon;
                 }
 
                 while (queue.size() > 1) {
@@ -98,28 +102,35 @@ public class PairingHeap<K extends Comparable<K>, V> {
                 root = null; // bol odstraneny posledny prvok haldy
             }
             size--;
-            return minNode.getValue();
+            return minNode;
         }
         else {
             return null;
         }
     }
 
+
     public void increasePriority(K newPriority, HeapNode<K, V> node) {
+        if (node == null) {
+            return;
+        }
         K oldPriority = node.getKey();
-        if (node.hasBestPriority() || (oldPriority.compareTo(newPriority) > 0 && node != root)) {
+        if (oldPriority.compareTo(newPriority) > 0 || node.hasBestPriority()) {
             node.setKey(newPriority);
-            HeapNode<K, V> heapParent = node.getHeapParent();
-            if (heapParent != null && node.compareTo(heapParent) < 0) {
-                HeapNode<K, V> directParent = (HeapNode<K, V>) node.getParent();
-                if (node.isRightSon()) {
-                    directParent.setRightSon(node.getRightSon());
+            if (node != root) {
+                HeapNode<K, V> heapParent = node.getHeapParent();
+                if (heapParent != null && node.compareTo(heapParent) < 0) {
+                    HeapNode<K, V> directParent = (HeapNode<K, V>) node.getParent();
+                    if (node.isRightSon()) {
+                        directParent.setRightSon(node.getRightSon());
+                    }
+                    else {
+                        directParent.setLeftSon(node.getRightSon());
+                    }
+                    node.makeRoot();
+                    node.setRightSon(null);
+                    root = meld(node, root);
                 }
-                else {
-                    directParent.setLeftSon(node.getRightSon());
-                }
-                node.makeRoot();
-                root = meld(node, root);
             }
         }
     }

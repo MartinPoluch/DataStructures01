@@ -52,4 +52,13 @@ public class HeapNode<K extends Comparable<K>, V> extends TreeNode<K, V> {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return (this == o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), hasBestPriority);
+    }
 }

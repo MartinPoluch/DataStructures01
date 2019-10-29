@@ -1,9 +1,6 @@
 package structures.tester;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class KeyAndOperationGen {
 
@@ -76,7 +73,7 @@ public class KeyAndOperationGen {
         }
 
         Collections.shuffle(randomOperations, generator);
-        operations.addAll(generateRandomOperations(numOfInserts, numOfDeletes, numOfPeeks));
+        operations.addAll(randomOperations);
 
     }
 

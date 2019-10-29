@@ -1,5 +1,6 @@
 package structures.tester;
 
+import org.omg.PortableInterceptor.INACTIVE;
 import structures.HeapNode;
 import structures.PairingHeap;
 
@@ -29,7 +30,6 @@ public class PairingHeapTester {
 
 
     public boolean test() throws DifferentTreesException, WrongImplementationException {
-        //initialize(numOfInserts, numOfDeletes, numOfFounds, generator);
         for (Operation  operation : generator.getOperations()) {
             switch (operation) {
                 case INSERT: {
@@ -38,55 +38,76 @@ public class PairingHeapTester {
                     javaHeap.add(key);
                     usedNodes.add(node);
                     checkEquality("insert");
+                    //System.out.println(operation);
                     break;
                 }
                 case DELETE: {
-                    Integer myVal = myHeap.deleteMin();
-                    Integer javaVal = javaHeap.poll();
-                    usedNodes.remove(new HeapNode<>(myVal, myVal, null));
-                    if (! myVal.equals(javaVal)) {
-                        throw new WrongImplementationException("Deleted different minimal elements", generator.getSeed());
+                    if (!usedNodes.isEmpty()) {
+                        HeapNode<Integer, Integer> removedMinNode = myHeap.deleteMinNode();
+                        Integer myVal = removedMinNode.getValue();
+                        Integer javaVal = javaHeap.poll();
+                        usedNodes.remove(removedMinNode);
+                        if (! myVal.equals(javaVal)) {
+                            throw new WrongImplementationException("Deleted different minimal elements seed:" + generator.getSeed(), generator.getSeed());
+                        }
+                        checkEquality("delete");
                     }
-                    checkEquality("delete");
+                    //System.out.println(operation);
                     break;
                 }
                 case INCREASE: {
-                    HeapNode<Integer, Integer> node = getRandomNode();
-                    int oldPriority = node.getKey();
-                    int newPriority = oldPriority - generator.getGenerator().nextInt(myHeap.getSize());
-                    myHeap.increasePriority(newPriority, node);
-                    javaHeap.remove(oldPriority);
-                    javaHeap.add(newPriority);
-                    checkEquality("increase");
+                    if (! usedNodes.isEmpty()) {
+                        HeapNode<Integer, Integer> node = getRandomNode();
+                        int oldPriority = node.getKey();
+                        int newPriority = oldPriority - generator.getGenerator().nextInt(myHeap.getSize());
+                        node.setValue(newPriority);
+                        myHeap.increasePriority(newPriority, node);
+                        javaHeap.remove(oldPriority);
+                        javaHeap.add(newPriority);
+                        checkEquality("increase");
+                    }
+                    //System.out.println(operation);
                     break;
                 }
                 case DECREASE: {
-                    HeapNode<Integer, Integer> node = getRandomNode();
-                    int oldPriority = node.getKey();
-                    int newPriority = oldPriority + generator.getGenerator().nextInt(myHeap.getSize());
-                    myHeap.decreasePriority(newPriority, node);
-                    javaHeap.remove(oldPriority);
-                    javaHeap.add(newPriority);
-                    checkEquality("decrease");
+                    if (! usedNodes.isEmpty()) {
+                        HeapNode<Integer, Integer> node = getRandomNode();
+                        int oldPriority = node.getKey();
+                        int newPriority = oldPriority + generator.getGenerator().nextInt(myHeap.getSize());
+                        node.setValue(newPriority);
+                        myHeap.decreasePriority(newPriority, node);
+                        javaHeap.remove(oldPriority);
+                        javaHeap.add(newPriority);
+                        checkEquality("decrease");
+                    }
+                   //System.out.println(operation);
                     break;
                 }
                 case DELETE_HEAP_NODE: {
-                    HeapNode<Integer, Integer> node = getRandomNode();
-                    myHeap.deleteNode(node);
-                    javaHeap.remove(node.getKey());
-                    checkEquality("delete heap node");
+                    if (! usedNodes.isEmpty()) {
+                        HeapNode<Integer, Integer> node = removeRandomNode();
+                        myHeap.deleteNode(node);
+                        javaHeap.remove(node.getKey());
+                        checkEquality("delete heap node");
+                    }
+                    //System.out.println(operation);
                     break;
                 }
             }
         }
+        checkEquality("End");
         return true;
     }
-
 
 
     private HeapNode<Integer, Integer> getRandomNode() {
         int index = generator.getGenerator().nextInt(usedNodes.size());
         return usedNodes.get(index);
+    }
+
+    private HeapNode<Integer, Integer> removeRandomNode() {
+        int index = generator.getGenerator().nextInt(usedNodes.size());
+        return usedNodes.remove(index);
     }
 
     private int removeRandomKey(List<Integer> keys) {
@@ -96,11 +117,17 @@ public class PairingHeapTester {
 
     private void checkEquality(String operation) throws DifferentTreesException, WrongImplementationException {
         if (myHeap.getSize() != javaHeap.size()) {
-            throw new WrongImplementationException("Sizes of heaps are different for operation " + operation, generator.getSeed());
+            throw new WrongImplementationException("Sizes of heaps are different for operation " + operation + " seed: " + generator.getSeed(), generator.getSeed());
         }
 
-        if (!myHeap.findMin().equals(javaHeap.peek())) {
-            throw new WrongImplementationException("Min elements are difference for operation " + operation, generator.getSeed());
+        if (myHeap.getSize() == 0) {
+            if (myHeap.findMin() != null) {
+                throw new WrongImplementationException("Heap is empty findMin should return null" + operation + " seed: " + generator.getSeed(), generator.getSeed());
+            }
+        }
+        else if (!myHeap.findMin().equals(javaHeap.peek())) {
+            throw new WrongImplementationException("Min elements are difference for operation " + operation + "\nexpected: " + javaHeap.peek()
+                    + "\nactual: " + myHeap.findMin() + "\n"  + " seed: " + generator.getSeed(), generator.getSeed());
         }
     }
 }

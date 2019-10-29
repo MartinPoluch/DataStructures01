@@ -12,8 +12,8 @@ public class Flight {
     private int priority;
     private Airplane airplane;
 
-    public Flight(Airplane airplane, int priority) {
-        this.priority = priority;
+    public Flight(Airplane airplane) {
+        this.priority = 0;
         this.airplane = airplane;
         this.runway = null;
         this.runwayType = null;

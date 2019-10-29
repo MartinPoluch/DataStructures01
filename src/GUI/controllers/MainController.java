@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 import structures.SplayTree;
 
 import java.util.Optional;
@@ -32,6 +33,8 @@ public class MainController {
     @FXML private Button addHourBtn;
     @FXML private Button addDayBtn;
 
+    @FXML private Button generateDataBtn;
+
     private Airport airport;
 
     public void initialize() {
@@ -40,6 +43,7 @@ public class MainController {
         showWaitingFlightsBtn.setOnAction(e -> showFlights(airport.getWaitingFlights()));
         findWaitingFlightBtn.setOnAction(e -> openFindWaitingFLightForm());
         showWFForRunwayBtn.setOnAction(e -> openShowWForRunwayForm());
+        generateDataBtn.setOnAction(e -> openGenerateDataForm());
         addMinutesBtn.setOnAction(e -> {
             airport.addTime(5, "minutes");
             dateTime.setText(airport.getActualDateTimeValue());
@@ -121,27 +125,53 @@ public class MainController {
     }
 
     private void openRunwayRequestForm() {
-        TextInputDialog dialog = new TextInputDialog("");
-
-        dialog.setTitle("Request runway");
-        dialog.setHeaderText("Insert request for runway.");
-        dialog.setContentText("Enter airplane unique code:");
-
-        Optional<String> result = dialog.showAndWait();
-
-        result.ifPresent(code -> {
-            try {
-                airport.requestRunway(code);
+        try {
+            Stage form = new Stage();
+            form.setTitle("Request runway");
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/views/RequestRunwayView.fxml"));
+            System.out.println(fxmlLoader);
+            Parent root = (Parent) fxmlLoader.load();
+            System.out.println(root);
+            form.setScene(new Scene(root));
+            RequestRunwayController controller = fxmlLoader.getController();
+            System.out.println(controller);
+            form.showAndWait();
+            if (controller.isConfirmed()) {
+                String code = controller.getCode();
+                Integer priority = controller.getPriority();
+                airport.requestRunway(code, priority);
             }
-            catch (Exception e) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Request cannot be done");
-                alert.setContentText(e.getMessage());
-                alert.showAndWait();
-                e.printStackTrace();
-            }
-        });
+        }
+        catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Request cannot be done");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+            e.printStackTrace();
+        }
+//        TextInputDialog dialog = new TextInputDialog("");
+//
+//        dialog.setTitle("Request runway");
+//        dialog.setHeaderText("Insert request for runway.");
+//        dialog.setContentText("Enter airplane unique code:");
+//
+//        Optional<String> result = dialog.showAndWait();
+//
+//        result.ifPresent(code -> {
+//            try {
+//                airport.requestRunway(code);
+//            }
+//            catch (Exception e) {
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.setTitle("Error");
+//                alert.setHeaderText("Request cannot be done");
+//                alert.setContentText(e.getMessage());
+//                alert.showAndWait();
+//                e.printStackTrace();
+//            }
+//        });
     }
 
     private void openShowWForRunwayForm() {
@@ -163,6 +193,30 @@ public class MainController {
                 Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
                 alert.setTitle("Error");
                 alert.setHeaderText("Runway not found");
+                alert.showAndWait();
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void openGenerateDataForm() {
+        TextInputDialog dialog = new TextInputDialog("");
+
+        dialog.setTitle("Generate data");
+        dialog.setHeaderText("Generate number of waiting flights.");
+        dialog.setContentText("Enter number of waiting flights:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(input -> {
+            try {
+                int numOfWaitingFlights = Integer.parseInt(input);
+                airport.generateData(numOfWaitingFlights);
+            }
+            catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+                alert.setTitle("Error");
+                alert.setHeaderText("Wrong input");
                 alert.showAndWait();
                 e.printStackTrace();
             }
