@@ -4,7 +4,7 @@ import Apk.Airport;
 import Apk.Flight;
 import Apk.RunwayType;
 import Apk.comparators.FlightCodeKey;
-import Apk.comparators.RunwayKey;
+import Apk.comparators.RunwayTypeKey;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +14,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import structures.SplayTree;
@@ -178,7 +177,7 @@ public class MainController {
                     System.out.println("ALL");
                 }
                 else {
-                    RunwayKey runwayKey = new RunwayKey(new RunwayType(runwayLength));
+                    RunwayTypeKey runwayKey = new RunwayTypeKey(new RunwayType(runwayLength));
                     foundFlight = airport.findFlightOnRunway(flightKey, runwayKey);
                 }
                 if (foundFlight != null) {
@@ -363,6 +362,7 @@ public class MainController {
                 alert.setTitle("Error");
                 alert.setHeaderText("Cannot save data.");
                 alert.showAndWait();
+                e.printStackTrace();
             }
         }
     }

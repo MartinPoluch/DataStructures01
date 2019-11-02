@@ -41,9 +41,8 @@ public class Airplane {
         return minRunwayLength;
     }
 
-
     @Override
     public String toString() {
-        return code + " " + type + " " + minRunwayLength;
+        return code + "," + type + "," + minRunwayLength + "," + state + "\n";
     }
 }

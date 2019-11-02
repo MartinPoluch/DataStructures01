@@ -10,7 +10,7 @@ public class Flight {
     private LocalDateTime arrival; // cas a datum priletu
     private LocalDateTime runwayRequest; // cas a datum poziadania o priletovu drahu
     private LocalDateTime departure; // cas a datum odletu
-    private RunwayType  runwayType;
+    private RunwayType runwayType;
     private Runway runway;
     private int priority;
     private HeapNode<FlightPriorityKey, Flight> heapNode;
@@ -104,8 +104,21 @@ public class Flight {
         return airplane.getMinRunwayLength();
     }
 
+    private String formatDate(LocalDateTime localDateTime) {
+        if (localDateTime != null) {
+            return localDateTime.toLocalDate() + " " + localDateTime.toLocalTime() + ",";
+        }
+        else {
+            return "";
+        }
+    }
+
     @Override
     public String toString() {
-        return airplane + " " + priority;
+        String runwayTypeLength = (runwayType != null) ? runwayType.getLength() + "," : "";
+        String runwayId = (runway != null) ? runway.getId() + "," : "";
+        return getCode() + "," + priority + "," +
+                formatDate(arrival) + formatDate(runwayRequest) + formatDate(departure) +
+                runwayTypeLength + runwayId + "\n";
     }
 }

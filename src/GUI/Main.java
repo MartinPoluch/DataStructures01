@@ -65,7 +65,7 @@ public class Main extends Application {
 
     private static void openRunwaysFile() {
         try {
-            File runways = new File("src\\Apk\\runways.txt");
+            File runways = new File("src\\Apk\\runways.csv");
             Desktop.getDesktop().open(runways);
         }
          catch (IOException io) {

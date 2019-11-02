@@ -4,7 +4,6 @@ import Apk.Flight;
 import Apk.Runway;
 import Apk.RunwayType;
 import Apk.comparators.FlightCodeKey;
-import Apk.comparators.RunwayKey;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

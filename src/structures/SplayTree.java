@@ -1,5 +1,9 @@
 package structures;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 
@@ -261,14 +265,18 @@ public class SplayTree<K extends Comparable<K>, V> {
         return size;
     }
 
+    @SuppressWarnings("Duplicates")
+    public List<V> levelOrder() {
+        if (root == null) {
+            return new ArrayList<>();
+        }
 
-    public List<TreeNode<K, V>> levelOrder() {
-        List<TreeNode<K, V>> orderedNodes = new ArrayList<>(size);
+        List<V> orderedNodes = new ArrayList<>(size);
         LinkedList<TreeNode<K, V>> queue = new LinkedList<>();
         queue.addFirst(root);
         while (! queue.isEmpty()) {
             TreeNode<K, V> actual = queue.removeLast();
-            orderedNodes.add(actual);
+            orderedNodes.add(actual.getValue());
             if (actual.getLeftSon() != null) {
                 queue.addFirst(actual.getLeftSon());
             }
@@ -277,6 +285,27 @@ public class SplayTree<K extends Comparable<K>, V> {
             }
         }
         return orderedNodes;
+    }
+
+    @SuppressWarnings("Duplicates")
+    public void levelOrder(File file) throws IOException {
+        if (root == null) {
+            return;
+        }
+        FileWriter writer = new FileWriter(file);
+        LinkedList<TreeNode<K, V>> queue = new LinkedList<>();
+        queue.addFirst(root);
+        while (! queue.isEmpty()) {
+            TreeNode<K, V> actual = queue.removeLast();
+            writer.append(actual.getValue().toString());
+            if (actual.getLeftSon() != null) {
+                queue.addFirst(actual.getLeftSon());
+            }
+            if (actual.getRightSon() != null) {
+                queue.addFirst(actual.getRightSon());
+            }
+        }
+        writer.close();
     }
 
     public List<TreeNode<K, V>> inOrder() {

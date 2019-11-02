@@ -34,7 +34,7 @@ public class RunwayType {
     }
 
     /**
-     * Pouziva sa ako RunwayKey
+     * Pouziva sa ako RunwayTypeKey
      */
     public RunwayType(int length) {
         this.length = length;

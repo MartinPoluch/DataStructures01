@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="734.0" prefWidth="1600.0" spacing="35.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controllers.ShowFlightsController">
+<VBox alignment="CENTER" prefHeight="899.0" prefWidth="1600.0" spacing="35.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controllers.ShowFlightsController">
    <children>
       <Label fx:id="header">
          <font>
@@ -17,7 +17,7 @@
             <Insets top="20.0" />
          </VBox.margin>
       </Label>
-      <TableView fx:id="flightsTab" prefHeight="732.0" prefWidth="1600.0">
+      <TableView fx:id="flightsTab" prefHeight="825.0" prefWidth="1600.0">
         <columns>
           <TableColumn fx:id="codeCol" prefWidth="160.0" sortable="false" text="Unique code" />
             <TableColumn fx:id="minLengthCol" prefWidth="132.0" sortable="false" text="Minimal length" />

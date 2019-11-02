@@ -2,23 +2,19 @@ package Apk;
 
 import Apk.comparators.AirplaneCodeKey;
 import Apk.comparators.FlightCodeKey;
-import Apk.comparators.FlightPriorityKey;
-import Apk.comparators.RunwayKey;
+import Apk.comparators.RunwayTypeKey;
 import structures.SplayTree;
 import structures.TreeNode;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class Airport {
 
+    private File numberOfRunways;
     private LocalDateTime actualDateTime;
-    private SplayTree<RunwayKey, RunwayType> runways;
+    private SplayTree<RunwayTypeKey, RunwayType> runways;
     private SplayTree<AirplaneCodeKey, Airplane> allAirplanes;
     private SplayTree<FlightCodeKey, Flight> arrivedFlights; // lietadla ktore nemaju definovany cas poziadania o odletovu drahu (este neprileteli)
     private SplayTree<FlightCodeKey, Flight> allWaitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
@@ -26,8 +22,8 @@ public class Airport {
 
     private DataGenerator dataGenerator;
 
-
     public Airport(LocalDateTime datetime) {
+        this.numberOfRunways = new File("src\\Apk\\runways.csv");
         this.actualDateTime = datetime;
         this.allAirplanes = new SplayTree<>();
         this.arrivedFlights = new SplayTree<>();
@@ -63,12 +59,11 @@ public class Airport {
         // z toho dovodu drahy najskor nacitam do arrayListu, kde nasledne nahodne zmenim poradie prvkov (shuffle)
         List<RunwayType> antiDegeneration = new ArrayList<>();
         int biggestRunway = 0; //TODO mohol by to byt atribut a pri pridavani lietadla sa bude checkovat dlzka
-        File numberOfRunways = new File("src\\Apk\\runways.txt");
         try {
             Scanner scanner = new Scanner(numberOfRunways);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] parseLine = line.split(" : ");
+                String[] parseLine = line.split(",");
                 int length = Integer.parseInt(parseLine[0]);
                 if (length > biggestRunway) {
                     biggestRunway = length;
@@ -81,7 +76,7 @@ public class Airport {
 
             Collections.shuffle(antiDegeneration);
             for (RunwayType runwayType : antiDegeneration) {
-                runways.insert(new RunwayKey(runwayType), runwayType);
+                runways.insert(new RunwayTypeKey(runwayType), runwayType);
             }
         }
         catch (Exception e) {
@@ -111,7 +106,7 @@ public class Airport {
         Flight flight = arrivedFlights.remove(key); // lietadlo musi byt priletene aby mohlo poziadat o drahu
         if (flight != null) {
             int airplaneLength = flight.getAirplane().getMinRunwayLength();
-            RunwayType runwayType = runways.findFirstBiggerValue(new RunwayKey(new RunwayType(airplaneLength)));
+            RunwayType runwayType = runways.findFirstBiggerValue(new RunwayTypeKey(new RunwayType(airplaneLength)));
             if (runwayType != null) {
                 flight.setPriority(priority);
                 flight.setRunwayRequest(actualDateTime);
@@ -142,7 +137,7 @@ public class Airport {
         }
     }
 
-    public Flight findFlightOnRunway(FlightCodeKey flightKey, RunwayKey runwayKey) {
+    public Flight findFlightOnRunway(FlightCodeKey flightKey, RunwayTypeKey runwayKey) {
         //TODO zmen parametre na string a int
         RunwayType runwayType = runways.find(runwayKey);
         if (runwayType != null) {
@@ -180,7 +175,7 @@ public class Airport {
     }
 
     public SplayTree<FlightCodeKey, Flight> findWaitingFlightsForRunway(int runwayLength) throws IllegalArgumentException{
-        RunwayKey runwayKey = new RunwayKey(new RunwayType(runwayLength));
+        RunwayTypeKey runwayKey = new RunwayTypeKey(new RunwayType(runwayLength));
         RunwayType runwayType = runways.find(runwayKey);
         if (runwayType != null) {
             return runwayType.getWaitingFlights();
@@ -287,19 +282,21 @@ public class Airport {
         }
     }
 
-    public void saveDataToFiles(File directory) throws IllegalArgumentException {
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());;
-        File file = new File(directory.getPath() + "/" + timeStamp);
-        if(file.mkdir()) {
+    public void saveDataToFiles(File locationOfDirectory) throws IllegalArgumentException, IOException {
+        FileSaver fileSaver = new FileSaver(locationOfDirectory);
+        fileSaver.save(actualDateTime);
+        fileSaver.save(numberOfRunways);
+        fileSaver.save(allAirplanes);
+        fileSaver.save(arrivedFlights, "arrivedFlights");
+        fileSaver.save(allWaitingFlights, "waitingFlights");
+        fileSaver.save(allFlightsOnRunway, "flightOnRunway");
+        List<RunwayType> runwayTypes = runways.levelOrder();
+        for (RunwayType runwayType : runwayTypes) {
+            fileSaver.save(runwayType);
+        }
+    }
 
-        }
-        else {
-            throw new IllegalArgumentException("Cannot create directory for save.");
-        }
-//        FileWriter fileWriter = new FileWriter(file);
-//        PrintWriter printWriter = new PrintWriter(fileWriter);
-//        printWriter.print("All planes");
-//        printWriter.close();
+    public void loadDataFromFiles(File directory) {
 
     }
 }
