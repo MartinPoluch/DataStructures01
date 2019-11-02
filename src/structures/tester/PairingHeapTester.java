@@ -96,6 +96,12 @@ public class PairingHeapTester {
             }
         }
         checkEquality("End");
+        int trueSize = myHeap.getTrueSize(); // urobi prehliadku inOrder a na zaklade poctu prvkou urci velkost
+        if ((myHeap.getTrueSize() != javaHeap.size()) || (javaHeap.size() != myHeap.getSize())) {
+            throw new WrongImplementationException("True size of heap is not equal to expected size,\ntrue size: " + trueSize +
+                    "\nmy heap size= " + myHeap.getSize() + "\njavaHeap size=" + javaHeap.size() +
+                    "seed: " + generator.getSeed(), generator.getSeed());
+        }
         return true;
     }
 

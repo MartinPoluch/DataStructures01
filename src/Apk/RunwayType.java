@@ -1,8 +1,8 @@
 package Apk;
 
-import Apk.comparators.AirplaneCodeKey;
 import Apk.comparators.FlightCodeKey;
 import Apk.comparators.FlightPriorityKey;
+import structures.HeapNode;
 import structures.PairingHeap;
 import structures.SplayTree;
 
@@ -14,7 +14,7 @@ public class RunwayType {
     private int length;
     private SplayTree<FlightCodeKey, Flight> waitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
     private PairingHeap<FlightPriorityKey, Flight> waitingQueue; // lietadla ktore cakaju na pridelenie odletovej drahy
-    private SplayTree<FlightCodeKey, Flight> flightsOnRunway; //TODO potrebujem vobec tento atribut ???
+    private SplayTree<FlightCodeKey, Flight> flightsOnRunway; // vyuziva sa pri odlete, aby sme dokazali lietadlo ktore ma odletiet najist z lepsou zlozitostou
     private ArrayList<Runway> runways;
     private LinkedList<Integer> freeRunways; // zoznam volny drah (cisla reprezentuju indexy drah)
     private Airport airport;
@@ -27,7 +27,7 @@ public class RunwayType {
         this.runways = new ArrayList<>(quantity);
         this.freeRunways = new LinkedList<>();
         for (int id = 0; id < quantity; id++) {
-            runways.add(new Runway(id));
+            runways.add(new Runway(id, length));
             freeRunways.add(id);
         }
         this.airport = airport;
@@ -55,7 +55,8 @@ public class RunwayType {
         }
         else { // nie je ziadna volna draha, lietadlo sa zaradi medzi cakajuce lietadla
             waitingFlights.insert(new FlightCodeKey(flight), flight);
-            waitingQueue.insert(new FlightPriorityKey(flight), flight);
+            HeapNode<FlightPriorityKey, Flight> flightNode = waitingQueue.insert(new FlightPriorityKey(flight), flight);
+            flight.setHeapNode(flightNode);
             airport.addFlightToWaiting(flight);
             flight.getAirplane().setState(State.WAITING);
         }
@@ -74,24 +75,59 @@ public class RunwayType {
         flight.getAirplane().setState(State.ON_RUN_WAY);
     }
 
-    public void departure(Flight departureFlight) {
-        flightsOnRunway.remove(new FlightCodeKey(departureFlight)); // flight je skutocne lietadlo zo vsetkymi vypisanymi atributmy
-        Runway runway = departureFlight.getRunway();
-        runway.free(); // draha sa uvolni
+    public Flight departure(Flight departureFlight) {
+        return removeFlightFromRunway(departureFlight, true);
+    }
+
+    public void changePriorityOfFlight(Flight flight, int newPriority) {
+        int oldPriority = flight.getPriority();
+        flight.setPriority(newPriority);
+        FlightPriorityKey priorityKey = new FlightPriorityKey(flight);
+        HeapNode<FlightPriorityKey, Flight> node = flight.getHeapNode();
+        if (oldPriority < newPriority) { // stara priorita bola lepsia
+            waitingQueue.decreasePriority(priorityKey, node);
+        }
+        else {
+            waitingQueue.increasePriority(priorityKey, node);
+        }
+    }
+
+
+    public Flight removeFlightFromRunway(Flight flight, boolean departure) {
+        flightsOnRunway.remove(new FlightCodeKey(flight)); // flight je skutocne lietadlo zo vsetkymi vypisanymi atributmy
+        Runway runway = flight.getRunway();
+        if (departure) {
+            runway.free(); // draha sa uvolni, lietadlo sa zaradi do historie
+        }
+        else {
+            runway.remove(); // draha sa uvolni, lietadlo sa NEzaradi do historie
+        }
         freeRunways.addLast(runway.getId()); // id novo uvolnenej drahy sa prida medzi idcka volnych drah;
-        System.out.println("departure: " + departureFlight);
         if (waitingQueue.getSize() > 0) {
             Flight nextFlight = waitingQueue.deleteMin();
             waitingFlights.remove(new FlightCodeKey(nextFlight));
-            airport.removeFlightFromWaiting(nextFlight);
+            airport.removeFlightFromAllWaiting(nextFlight);
             addFlightOnRunway(nextFlight);
-            System.out.println("next flight: " + nextFlight);
+            return nextFlight;
         }
+        else {
+            return null;
+        }
+    }
 
+    public void removeWaitingFlight(Flight flight) {
+        waitingFlights.remove(new FlightCodeKey(flight));
+        HeapNode<FlightPriorityKey, Flight> node = flight.getHeapNode();
+        waitingQueue.deleteNode(node);
+        flight.getAirplane().setState(State.INACTIVE);
     }
 
     public SplayTree<FlightCodeKey, Flight> getWaitingFlights() {
         return waitingFlights;
+    }
+
+    public ArrayList<Runway> getRunways() {
+        return runways;
     }
 
     @Override

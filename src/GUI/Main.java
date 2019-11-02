@@ -56,7 +56,7 @@ public class Main extends Application {
             Parent root = (Parent) fxmlLoader.load();
             MainController mainController = fxmlLoader.getController();
             mainController.setAirport(new Airport(localDateTime));
-            primaryStage.setScene(new Scene(root, 600, 600));
+            primaryStage.setScene(new Scene(root, 1000, 650));
         }
         catch (Exception e) {
             e.printStackTrace();

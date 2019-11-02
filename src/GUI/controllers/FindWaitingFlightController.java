@@ -14,7 +14,6 @@ public class FindWaitingFlightController {
     @FXML private boolean confirmed;
 
     public void initialize() {
-
         findBtn.setOnAction(e -> {
             confirmed = true;
             closeForm();

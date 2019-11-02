@@ -5,11 +5,13 @@ import java.util.LinkedList;
 public class Runway {
 
     private final int id;
+    private final int length;
     private Flight flight;
     private LinkedList<Flight> flightsHistory;
 
-    public Runway(int id) {
+    public Runway(int id, int length) {
         this.id = id;
+        this.length = length;
         this.flight = null;
         this.flightsHistory = new LinkedList<>();
     }
@@ -22,14 +24,21 @@ public class Runway {
         this.flight = flight;
     }
 
-    public Flight free() {
+    public void free() {
         flightsHistory.addLast(flight);
         flight = null;
-        return flightsHistory.getLast();
+    }
+
+    public void remove() {
+        flight = null;
+    }
+
+    public LinkedList<Flight> getFlightsHistory() {
+        return flightsHistory;
     }
 
     @Override
     public String toString() {
-        return Integer.toString(id);
+        return Integer.toString(length) + "-" + Integer.toString(id);
     }
 }

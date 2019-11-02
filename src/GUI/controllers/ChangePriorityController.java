@@ -5,23 +5,23 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class RequestRunwayController {
+public class ChangePriorityController {
 
-    @FXML private TextField code;
-    @FXML private TextField priority;
+    @FXML private TextField codeInput;
+    @FXML private TextField priorityInput;
     @FXML private Button confirmBtn;
     @FXML private Button cancelBtn;
-    private boolean confirmed;
+    @FXML private boolean confirmed;
 
     public void initialize() {
         confirmed = false;
         confirmBtn.setOnAction(e -> {
-            confirmed = true;
             closeForm();
+            confirmed = true;
         });
         cancelBtn.setOnAction(e -> {
-            confirmed = false;
             closeForm();
+            confirmed = false;
         });
     }
 
@@ -34,16 +34,15 @@ public class RequestRunwayController {
         return confirmed;
     }
 
-    public String getCode() {
-        return code.getText();
-    }
-
     public Integer getPriority() {
         try {
-            return Integer.parseInt(priority.getText());
-        }
-        catch (Exception e) {
+            return Integer.parseInt(priorityInput.getText());
+        } catch (Exception e) {
             throw new IllegalArgumentException("Priority must be number.");
         }
+    }
+
+    public String getCode() {
+        return codeInput.getText();
     }
 }

@@ -11,7 +11,7 @@ public class Airplane {
         this.type = type;
         this.code = code;
         this.minRunwayLength = minRunwayLength;
-        this.state = State.ARRIVED;
+        this.state = State.INACTIVE;
     }
 
     /**

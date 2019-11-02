@@ -1,6 +1,7 @@
 import Apk.DataGenerator;
 import structures.HeapNode;
 import structures.PairingHeap;
+import structures.SplayTree;
 import structures.tester.PairingHeapTester;
 import structures.tester.SplayTreeTester;
 
@@ -33,7 +34,7 @@ public class Test {
         System.out.println("\nPairingheap tester");
         for (int i = 0; i < 10; i++) {
             try {
-                PairingHeapTester tester = new PairingHeapTester(5000, 1000, 1000,1000 , 1000);
+                PairingHeapTester tester = new PairingHeapTester(50000, 10000, 10000,10000 , 10000);
                 if (tester.test()) {
                     System.out.println("OK: " + i);
                 }

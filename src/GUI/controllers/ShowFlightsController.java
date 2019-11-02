@@ -4,17 +4,22 @@ import Apk.Flight;
 import Apk.Runway;
 import Apk.RunwayType;
 import Apk.comparators.FlightCodeKey;
+import Apk.comparators.RunwayKey;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import structures.SplayTree;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ShowFlightsController {
+
+    @FXML private Label header;
 
     @FXML private TableColumn<Flight, String> codeCol;
     @FXML private TableColumn<Flight, String> typeCol;
@@ -42,6 +47,10 @@ public class ShowFlightsController {
         runway.setCellValueFactory(new PropertyValueFactory<>("runway"));
     }
 
+    public void setHeader(String text) {
+        header.setText(text);
+    }
+
     public void showFlights(SplayTree<FlightCodeKey, Flight> tree) {
         tree.inOrder(flights);
         flightsTab.setItems(flights);
@@ -50,6 +59,15 @@ public class ShowFlightsController {
     public void showFlights(Flight flight) {
         if (flight != null) {
             flights.add(flight);
+        }
+        flightsTab.setItems(flights);
+    }
+
+    public void showFlightHistoryOfRunways(List<RunwayType> runwayTypes) {
+        for (RunwayType runwayType : runwayTypes) {
+            for (Runway runway : runwayType.getRunways()) {
+                flights.addAll(runway.getFlightsHistory());
+            }
         }
         flightsTab.setItems(flights);
     }

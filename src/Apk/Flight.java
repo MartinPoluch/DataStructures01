@@ -1,5 +1,8 @@
 package Apk;
 
+import Apk.comparators.FlightPriorityKey;
+import structures.HeapNode;
+
 import java.time.LocalDateTime;
 
 public class Flight {
@@ -10,17 +13,27 @@ public class Flight {
     private RunwayType  runwayType;
     private Runway runway;
     private int priority;
+    private HeapNode<FlightPriorityKey, Flight> heapNode;
     private Airplane airplane;
 
     public Flight(Airplane airplane) {
         this.priority = 0;
         this.airplane = airplane;
+        this.heapNode = null;
         this.runway = null;
         this.runwayType = null;
     }
 
     public Flight(String code) {
         this.airplane = new Airplane(code);
+    }
+
+    public void setHeapNode(HeapNode<FlightPriorityKey, Flight> heapNode) {
+        this.heapNode = heapNode;
+    }
+
+    public HeapNode<FlightPriorityKey, Flight> getHeapNode() {
+        return heapNode;
     }
 
     public RunwayType getRunwayType() {
@@ -90,17 +103,6 @@ public class Flight {
     public Integer getMinLength() {
         return airplane.getMinRunwayLength();
     }
-
-    public void departure() {
-        if (runwayType != null && runway != null && airplane.getState() == State.ON_RUN_WAY) {
-            airplane.setState(State.INACTIVE);// ON_RUN_WAY -> INACTIVE
-            runwayType.departure(this);
-        }
-        else {
-            System.err.println("Error, airplane cannot departure, because runwayType or runway is null");
-        }
-    }
-
 
     @Override
     public String toString() {

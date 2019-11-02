@@ -1,19 +1,21 @@
 package Apk;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 public class DataGenerator {
 
-    private int code;
+    private int counter;
     private int maxRunwayLength;
+    private Random random;
 
     public DataGenerator() {
-        this.code = 0;
+        this.counter = 0;
     }
 
     public void setMaxRunwayLength(int maxRunwayLength) {
         this.maxRunwayLength = maxRunwayLength;
+        this.random = new Random();
     }
 
     /**
@@ -35,14 +37,25 @@ public class DataGenerator {
 
     public Flight randomFlight() {
         String type = generateRandomString(5);
-        Random random = new Random();
+        String code = generateRandomString(4) + counter;
+        counter++;
         int runwayLength = random.nextInt(maxRunwayLength);
-        Airplane airplane = new Airplane(type, Integer.toString(code), runwayLength);
-        int priority = random.nextInt(10) + 1;
-        Flight flight = new Flight(airplane);
-        code++;
-        return flight;
+        Airplane airplane = new Airplane(type, code, runwayLength);
+        return new Flight(airplane);
     }
 
+    public int randomNumber(int upperBound) {
+        return random.nextInt(upperBound);
+    }
 
+    public LocalDateTime updateDatetime(LocalDateTime dateTime) {
+        double chanceOfUpdate = 0.2;
+        if (random.nextDouble() < chanceOfUpdate) {
+            int minutes = random.nextInt(10) + 1;
+            return dateTime.plusMinutes(minutes);
+        }
+        else {
+            return dateTime;
+        }
+    }
 }

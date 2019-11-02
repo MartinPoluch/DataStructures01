@@ -1,7 +1,6 @@
 package structures;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * Pri testovani, prejdi cez level order a zisti ci splna vlastnosti haldy.
@@ -114,23 +113,21 @@ public class PairingHeap<K extends Comparable<K>, V> {
         if (node == null) {
             return;
         }
-        K oldPriority = node.getKey();
-        if (oldPriority.compareTo(newPriority) > 0 || node.hasBestPriority()) {
-            node.setKey(newPriority);
-            if (node != root) {
-                HeapNode<K, V> heapParent = node.getHeapParent();
-                if (heapParent != null && node.compareTo(heapParent) < 0) {
-                    HeapNode<K, V> directParent = (HeapNode<K, V>) node.getParent();
-                    if (node.isRightSon()) {
-                        directParent.setRightSon(node.getRightSon());
-                    }
-                    else {
-                        directParent.setLeftSon(node.getRightSon());
-                    }
-                    node.makeRoot();
-                    node.setRightSon(null);
-                    root = meld(node, root);
+
+        node.setKey(newPriority);
+        if (node != root) {
+            HeapNode<K, V> heapParent = node.getHeapParent();
+            if (heapParent != null && node.compareTo(heapParent) < 0) {
+                HeapNode<K, V> directParent = (HeapNode<K, V>) node.getParent();
+                if (node.isRightSon()) {
+                    directParent.setRightSon(node.getRightSon());
                 }
+                else {
+                    directParent.setLeftSon(node.getRightSon());
+                }
+                node.makeRoot();
+                node.setRightSon(null);
+                root = meld(node, root);
             }
         }
     }
@@ -139,54 +136,51 @@ public class PairingHeap<K extends Comparable<K>, V> {
      * Data (V) si musia pamatat referenciu na haldu.
      */
     public void decreasePriority(K newPriority, HeapNode<K, V> node) {
-        K oldPriority = node.getKey();
-        if (oldPriority.compareTo(newPriority) < 0) {
-            node.setKey(newPriority);
-            LinkedList<HeapNode<K, V>> sons = node.getSons();
-            boolean ok = true;
-            for (HeapNode<K, V> son : sons) {
-                if (node.compareTo(son) > 0) {
-                    ok = false;
-                    break;
-                }
+        node.setKey(newPriority);
+        LinkedList<HeapNode<K, V>> sons = node.getSons();
+        boolean ok = true;
+        for (HeapNode<K, V> son : sons) {
+            if (node.compareTo(son) > 0) {
+                ok = false;
+                break;
             }
+        }
 
-            if (ok) {
-                return;
-            }
-            HeapNode<K, V> parent = (HeapNode<K, V>) node.getParent();
-            HeapNode<K, V> rightSon = (HeapNode<K, V>) node.getRightSon();
-            boolean isRightSon = node.isRightSon();
+        if (ok) {
+            return;
+        }
+        HeapNode<K, V> parent = (HeapNode<K, V>) node.getParent();
+        HeapNode<K, V> rightSon = (HeapNode<K, V>) node.getRightSon();
+        boolean isRightSon = node.isRightSon();
 
-            node.setLeftSon(null);
-            sons.addFirst(node);
+        node.setLeftSon(null);
+        sons.addFirst(node);
 
-            while (sons.size() > 1) {
-                HeapNode<K, V> son1 = sons.removeFirst();
-                son1.makeRoot();
-                son1.setRightSon(null);
+        while (sons.size() > 1) {
+            HeapNode<K, V> son1 = sons.removeFirst();
+            son1.makeRoot();
+            son1.setRightSon(null);
 
-                HeapNode<K, V> son2 = sons.removeFirst();
-                son2.makeRoot();
-                son2.setRightSon(null);
+            HeapNode<K, V> son2 = sons.removeFirst();
+            son2.makeRoot();
+            son2.setRightSon(null);
 
-                HeapNode<K, V> heap = meld(son1, son2);
-                sons.addLast(heap);
-            }
+            HeapNode<K, V> heap = meld(son1, son2);
+            sons.addLast(heap);
+        }
 
-            HeapNode<K, V> replaceNode = sons.removeFirst();
-            if (parent == null) {
-                root = replaceNode;
+        HeapNode<K, V> replaceNode = sons.removeFirst();
+        if (parent == null) {
+            root = replaceNode;
+        }
+        else {
+            if (isRightSon) {
+                parent.setRightSon(replaceNode);
             }
             else {
-                if (isRightSon) {
-                    parent.setRightSon(replaceNode);
-                }
-                else {
-                    parent.setLeftSon(replaceNode);
-                }
-                replaceNode.setRightSon(rightSon);
+                parent.setLeftSon(replaceNode);
             }
+            replaceNode.setRightSon(rightSon);
         }
     }
 
@@ -195,5 +189,23 @@ public class PairingHeap<K extends Comparable<K>, V> {
         increasePriority(node.getKey(), node);
         deleteMin();
         node.setHasBestPriority(false);
+    }
+
+    public int getTrueSize() {
+        int realSize = 0;
+        Stack<HeapNode<K, V>> stack = new Stack<>();
+        HeapNode<K, V> node = root;
+        while (! stack.isEmpty() || node != null) {
+            if (node != null) {
+                stack.push(node);
+                node = (HeapNode<K, V>) node.getLeftSon();
+            }
+            else {
+                node = stack.pop();
+                realSize++;
+                node = (HeapNode<K, V>) node.getRightSon();
+            }
+        }
+        return realSize;
     }
 }
