@@ -23,7 +23,7 @@ public class Airport {
     private DataGenerator dataGenerator;
 
     public Airport(LocalDateTime datetime) {
-        this.numberOfRunways = new File("src\\Apk\\runways.csv");
+        this.numberOfRunways = new File("src\\Apk\\numberOfRunways.csv");
         this.actualDateTime = datetime;
         this.allAirplanes = new SplayTree<>();
         this.arrivedFlights = new SplayTree<>();
@@ -32,6 +32,28 @@ public class Airport {
         this.allFlightsOnRunway = new SplayTree<>();
         this.dataGenerator = new DataGenerator();
         this.readNumbersOfRunways();
+    }
+
+    public Airport(File saveDirectory) throws IOException, IllegalArgumentException{
+        FileLoader fileLoader = new FileLoader(saveDirectory);
+        this.actualDateTime = fileLoader.loadDateTime();
+        this.allAirplanes = fileLoader.loadAllAirplanes();
+        this.arrivedFlights = fileLoader.loadArrivedFlights();
+        this.allWaitingFlights = new SplayTree<>();
+        this.allFlightsOnRunway = new SplayTree<>();
+        this.runways = fileLoader.loadRunways(this);
+        //printAll();
+    }
+
+    public void saveDataToFiles(File locationOfDirectory) throws IllegalArgumentException, IOException {
+        FileSaver fileSaver = new FileSaver(locationOfDirectory);
+        fileSaver.save(actualDateTime);
+        fileSaver.save(allAirplanes);
+        fileSaver.save(arrivedFlights, FileSaver.ARRIVED_FLIGHTS);
+        List<RunwayType> runwayTypes = runways.levelOrder();
+        for (RunwayType runwayType : runwayTypes) {
+            fileSaver.save(runwayType);
+        }
     }
 
     public void addTime(int amount, String unit) {
@@ -98,7 +120,6 @@ public class Airport {
             flight.setAirplane(airplane); // priradime k letu novu refeneciu (v pripade ze lietadlo uz existuje v systeme)
             arrivedFlights.insert(new FlightCodeKey(flight), flight);
         }
-        printAll();
     }
 
     public void requestRunway(String code, int priority) throws IllegalArgumentException, NoSuchElementException {
@@ -120,7 +141,6 @@ public class Airport {
         else {
             throw new IllegalArgumentException("There is no arrived flight with this code.");
         }
-        printAll();
     }
 
     public Flight addFlightDeparture(String code) throws IllegalArgumentException {
@@ -190,8 +210,8 @@ public class Airport {
     }
 
     private void printAll() {
-//        System.out.println("\n--------------------------------------------------------------------------\n");
-//        printSplayTree("All planes", allAirplanes);
+        System.out.println("\n--------------------------------------------------------------------------\n");
+        printSplayTree("All planes", allAirplanes);
 //        printSplayTree("Arrived flights", arrivedFlights);
 //        printSplayTree("Waiting flight", allWaitingFlights);
 //        printSplayTree("Flights on runway ", allFlightsOnRunway);
@@ -206,7 +226,6 @@ public class Airport {
     }
 
     public void generateData(int arrivedFlights, int waitingFlights, int departureFlights) {
-        //TODO mozno by to bolo dobre spravit trocha efektifnejsie
         for (int i = 0; i < departureFlights; i++) { // najskor treba generovat odlety, pretoze potom uz budu obsadene drahy
             Flight flight = dataGenerator.randomFlight();
             addFlight(flight);
@@ -279,20 +298,6 @@ public class Airport {
         }
         else {
             throw new IllegalArgumentException("Flight with code: " + code + " is not in waiting flights.");
-        }
-    }
-
-    public void saveDataToFiles(File locationOfDirectory) throws IllegalArgumentException, IOException {
-        FileSaver fileSaver = new FileSaver(locationOfDirectory);
-        fileSaver.save(actualDateTime);
-        fileSaver.save(numberOfRunways);
-        fileSaver.save(allAirplanes);
-        fileSaver.save(arrivedFlights, "arrivedFlights");
-        fileSaver.save(allWaitingFlights, "waitingFlights");
-        fileSaver.save(allFlightsOnRunway, "flightOnRunway");
-        List<RunwayType> runwayTypes = runways.levelOrder();
-        for (RunwayType runwayType : runwayTypes) {
-            fileSaver.save(runwayType);
         }
     }
 

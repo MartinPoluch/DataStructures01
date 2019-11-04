@@ -14,7 +14,7 @@ public class RunwayType {
     private int length;
     private SplayTree<FlightCodeKey, Flight> waitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
     private PairingHeap<FlightPriorityKey, Flight> waitingQueue; // lietadla ktore cakaju na pridelenie odletovej drahy
-    private SplayTree<FlightCodeKey, Flight> flightsOnRunway; // vyuziva sa pri odlete, aby sme dokazali lietadlo ktore ma odletiet najist z lepsou zlozitostou
+    //private SplayTree<FlightCodeKey, Flight> flightsOnRunway; //TODO, zbytocny atribut (asi???)
     private ArrayList<Runway> runways;
     private LinkedList<Integer> freeRunways; // zoznam volny drah (cisla reprezentuju indexy drah)
     private Airport airport;
@@ -23,7 +23,7 @@ public class RunwayType {
         this.length = length;
         this.waitingFlights = new SplayTree<>();
         this.waitingQueue = new PairingHeap<>();
-        this.flightsOnRunway = new SplayTree<>();
+        //this.flightsOnRunway = new SplayTree<>();
         this.runways = new ArrayList<>(quantity);
         this.freeRunways = new LinkedList<>();
         for (int id = 0; id < quantity; id++) {
@@ -31,6 +31,24 @@ public class RunwayType {
             freeRunways.add(id);
         }
         this.airport = airport;
+    }
+
+    public RunwayType(int length,
+                      SplayTree<FlightCodeKey, Flight> waitingFlights,
+                      PairingHeap<FlightPriorityKey, Flight> waitingQueue,
+                      ArrayList<Runway> runways,
+                      LinkedList<Integer> freeRunways,
+                      Airport airport) {
+        this.length = length;
+        this.waitingFlights = waitingFlights;
+        this.waitingQueue = waitingQueue;
+        this.runways = runways;
+        this.freeRunways = freeRunways;
+        this.airport = airport;
+    }
+
+    public void loadData() {
+
     }
 
     /**
@@ -70,7 +88,7 @@ public class RunwayType {
         Runway freeRunway = runways.get(runwayId);
         freeRunway.occupy(flight);
         flight.setRunway(freeRunway);
-        flightsOnRunway.insert(new FlightCodeKey(flight), flight);
+        //flightsOnRunway.insert(new FlightCodeKey(flight), flight);
         airport.addFlightToRunway(flight);
         flight.getAirplane().setState(State.ON_RUN_WAY);
     }
@@ -94,7 +112,7 @@ public class RunwayType {
 
 
     public Flight removeFlightFromRunway(Flight flight, boolean departure) {
-        flightsOnRunway.remove(new FlightCodeKey(flight)); // flight je skutocne lietadlo zo vsetkymi vypisanymi atributmy
+        //flightsOnRunway.remove(new FlightCodeKey(flight)); // flight je skutocne lietadlo zo vsetkymi vypisanymi atributmy
         Runway runway = flight.getRunway();
         if (departure) {
             runway.free(); // draha sa uvolni, lietadlo sa zaradi do historie

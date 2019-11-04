@@ -21,6 +21,36 @@ public class Airplane {
         this.code = code;
     }
 
+    /**
+     * Konstruktor ktory dostane ako parameter riadok suboru. Kde dany riadok reprezentuje udaje o konkretnom lietadle.
+     */
+    public Airplane(String[] attributes) {
+        this.code = attributes[0];
+        this.type = attributes[1];
+        this.minRunwayLength = Integer.parseInt(attributes[2]);
+        this.state = stateFromString(attributes[3]);
+    }
+
+    private State stateFromString(String strState) throws IllegalArgumentException{
+        switch (strState) {
+            case "ARRIVED" : {
+                return State.ARRIVED;
+            }
+            case "WAITING" : {
+                return State.WAITING;
+            }
+            case "ON_RUN_WAY" : {
+                return State.ON_RUN_WAY;
+            }
+            case "INACTIVE" : {
+                return State.INACTIVE;
+            }
+            default: {
+                throw new IllegalArgumentException("Unknown state: " + strState);
+            }
+        }
+    }
+
     public State getState() {
         return state;
     }

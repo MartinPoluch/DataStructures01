@@ -28,6 +28,10 @@ public class Flight {
         this.airplane = new Airplane(code);
     }
 
+    public Flight(String[] attributes) {
+
+    }
+
     public void setHeapNode(HeapNode<FlightPriorityKey, Flight> heapNode) {
         this.heapNode = heapNode;
     }
@@ -106,7 +110,7 @@ public class Flight {
 
     private String formatDate(LocalDateTime localDateTime) {
         if (localDateTime != null) {
-            return localDateTime.toLocalDate() + " " + localDateTime.toLocalTime() + ",";
+            return "," + localDateTime.toLocalDate() + " " + localDateTime.toLocalTime();
         }
         else {
             return "";
@@ -115,9 +119,12 @@ public class Flight {
 
     @Override
     public String toString() {
-        String runwayTypeLength = (runwayType != null) ? runwayType.getLength() + "," : "";
-        String runwayId = (runway != null) ? runway.getId() + "," : "";
-        return getCode() + "," + priority + "," +
+        //TODO, cakajuci let nepotrebuje typ drahy
+        String runwayTypeLength = (runwayType != null) ? "," +  runwayType.getLength() : "";
+        String runwayId = (runway != null) ? "," + Integer.toString(runway.getId()) : "";
+        // aby sa do suboru arrivedFlights.csv nezapisovala priorita. Pretoze v tomto pripade priorita vzdy bude rovna nule. Pretoze este nebola zadefinovana.
+        String strPriority = (airplane.getState() == State.ARRIVED) ? "" : "," + priority;
+        return getCode() + strPriority +
                 formatDate(arrival) + formatDate(runwayRequest) + formatDate(departure) +
                 runwayTypeLength + runwayId + "\n";
     }

@@ -16,8 +16,19 @@ public class Runway {
         this.flightsHistory = new LinkedList<>();
     }
 
+    public Runway(int id, int length, Flight flight, LinkedList<Flight> flightsHistory) {
+        this.id = id;
+        this.length = length;
+        this.flight = flight;
+        this.flightsHistory = flightsHistory;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public Flight getFlight() {
+        return flight;
     }
 
     public void occupy(Flight flight) {

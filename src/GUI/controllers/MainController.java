@@ -126,7 +126,7 @@ public class MainController {
             alert.setHeaderText("Request cannot be done");
             alert.setContentText(e.getMessage());
             alert.showAndWait();
-            //e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
