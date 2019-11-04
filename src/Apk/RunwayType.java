@@ -14,7 +14,7 @@ public class RunwayType {
     private int length;
     private SplayTree<FlightCodeKey, Flight> waitingFlights; // lietadla ktore cakaju na pridelenie odletovej drahy
     private PairingHeap<FlightPriorityKey, Flight> waitingQueue; // lietadla ktore cakaju na pridelenie odletovej drahy
-    //private SplayTree<FlightCodeKey, Flight> flightsOnRunway; //TODO, zbytocny atribut (asi???)
+    //private SplayTree<FlightCodeKey, Flight> flightsOnRunway;
     private ArrayList<Runway> runways;
     private LinkedList<Integer> freeRunways; // zoznam volny drah (cisla reprezentuju indexy drah)
     private Airport airport;
@@ -62,6 +62,7 @@ public class RunwayType {
         return length;
     }
 
+    @SuppressWarnings("Duplicates")
     public void request(Flight flight) {
         if (flight == null) {
             return;

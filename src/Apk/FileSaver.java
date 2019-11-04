@@ -56,13 +56,6 @@ public class FileSaver {
         }
     }
 
-//    public void save(File numberOfRunways) throws IOException {
-//        //TODO, zbytocne, netreba ukladat, viem zistit zo zvysnych dat
-//        Path source = Paths.get(numberOfRunways.getPath());
-//        OutputStream destination = new FileOutputStream(rootDirectory.getPath() + "/" + source.getFileName());
-//        Files.copy(source, destination); // urobim kopiu komfiguracneho suboru
-//    }
-
     public void save(RunwayType runwayType) throws IOException{
         File runwayTypeDir = new File(rootDirectory.getPath() + "/" + runwayType.getLength());
         if (runwayTypeDir.mkdir()) {

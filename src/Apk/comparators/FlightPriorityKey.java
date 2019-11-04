@@ -15,7 +15,12 @@ public class FlightPriorityKey implements Comparable<FlightPriorityKey>{
 
     @Override
     public int compareTo(FlightPriorityKey other) {
-        return this.flight.getPriority().compareTo(other.flight.getPriority());
+        if (this.flight.getPriority().compareTo(other.flight.getPriority()) == 0) {
+            return this.flight.getRunwayRequest().compareTo(other.flight.getRunwayRequest());
+        }
+        else {
+            return this.flight.getPriority().compareTo(other.flight.getPriority());
+        }
     }
 
     @Override

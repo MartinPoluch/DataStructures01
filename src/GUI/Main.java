@@ -13,19 +13,32 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class Main extends Application {
 
     private static Stage primaryStage;
+    private static File runwaysFile;
 
     @Override
     public void start(Stage paPrimaryStage) throws Exception{
+        try {
+            //System.out.println(new File(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/GUI/numberOfRunways.csv"));
+            File actualFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            runwaysFile =  new File(actualFile.getParent() + "/numberOfRunways.csv");
+            System.out.println(runwaysFile);
+        }
+        catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("File with runways not found.");
+            alert.showAndWait();
+            return;
+        }
+
         primaryStage = paPrimaryStage;
         primaryStage.setTitle("Airport");
         VBox vBox = new VBox(15);
@@ -36,7 +49,7 @@ public class Main extends Application {
         DateTimePicker dateTimePicker = new DateTimePicker();
         vBox.getChildren().add(dateTimePicker);
 
-        Button createNewBtn = new Button(" Create new airport  ");
+        Button createNewBtn = new Button("Create new airport");
         createNewBtn.setOnAction(e -> createNewAirport(dateTimePicker.getDateTimeValue()));
         vBox.getChildren().add(createNewBtn);
 
@@ -44,21 +57,24 @@ public class Main extends Application {
         openExistingBtn.setOnAction(e -> openExistingAirport());
         vBox.getChildren().add(openExistingBtn);
 
-        Button openRunwaysFileBtn = new Button("    Edit runways file    ");
+        Button openRunwaysFileBtn = new Button("Edit runways file");
         openRunwaysFileBtn.setOnAction(e -> openRunwaysFile());
         vBox.getChildren().add(openRunwaysFileBtn);
         Scene scene = new Scene(vBox, 300, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
     }
 
+
+
     private void createNewAirport(LocalDateTime localDateTime)  {
-        //System.out.println(localDateTime);
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/views/MainView.fxml"));
             Parent root = (Parent) fxmlLoader.load();
             MainController mainController = fxmlLoader.getController();
-            mainController.setAirport(new Airport(localDateTime));
+            mainController.setAirport(new Airport(localDateTime, runwaysFile));
             primaryStage.setScene(new Scene(root, 1000, 650));
         }
         catch (Exception e) {
@@ -67,14 +83,16 @@ public class Main extends Application {
     }
 
 
-
     private static void openRunwaysFile() {
         try {
-            File runways = new File("src\\Apk\\numberOfRunways.csv");
-            Desktop.getDesktop().open(runways);
+            Desktop.getDesktop().open(runwaysFile);
         }
-         catch (IOException io) {
-            io.printStackTrace();
+         catch (Exception e) {
+             Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+             alert.setTitle("Error");
+             alert.setHeaderText("File with runways not found.");
+             alert.showAndWait();
+             e.printStackTrace();
          }
 
     }

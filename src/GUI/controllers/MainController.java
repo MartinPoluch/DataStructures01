@@ -51,10 +51,10 @@ public class MainController {
         addAirplaneBtn.setOnAction(e -> openAddAirplaneForm());
         addRunwayRequestBtn.setOnAction(e -> openRunwayRequestForm());
         addFlightDepartureBtn.setOnAction(e -> openDepartureForm());
-        showWaitingFlightsBtn.setOnAction(e -> showFlights(airport.getAllWaitingFlights()));
+        showWaitingFlightsBtn.setOnAction(e -> showFlights(airport.getAllWaitingFlights(), "All waiting flights"));
         findWaitingFlightBtn.setOnAction(e -> openFindWaitingFlightForm());
-        showAllArrivedFlightsBtn.setOnAction(e -> showFlights(airport.getArrivedFlights()));
-        showAllFlightsOnRunwayBtn.setOnAction(e -> showFlights(airport.getAllFlightsOnRunway()));
+        showAllArrivedFlightsBtn.setOnAction(e -> showFlights(airport.getArrivedFlights(), "Arrived flights"));
+        showAllFlightsOnRunwayBtn.setOnAction(e -> showFlights(airport.getAllFlightsOnRunway(), "All flights on runway"));
         showWFForRunwayBtn.setOnAction(e -> openShowWForRunwayForm());
         showFlightsHistoryBtn.setOnAction(e -> showFlights(airport.getRunwayTypes()));
         removeWaitingFlightBtn.setOnAction(e -> openRemoveWaitingFlightForm());
@@ -174,7 +174,6 @@ public class MainController {
                 if (runwayLength == null) {
                     SplayTree<FlightCodeKey, Flight> allWaitingFlight = airport.getAllWaitingFlights();
                     foundFlight = allWaitingFlight.find(flightKey);
-                    System.out.println("ALL");
                 }
                 else {
                     RunwayTypeKey runwayKey = new RunwayTypeKey(new RunwayType(runwayLength));
@@ -214,7 +213,7 @@ public class MainController {
                 String[] parsed = input.split("-");
                 int length = Integer.parseInt(parsed[0]);
                 SplayTree<FlightCodeKey, Flight> waitingFlights = airport.findWaitingFlightsForRunway(length);
-                showFlights(waitingFlights);
+                showFlights(waitingFlights, "Waiting flights for runway");
             }
             catch (Exception e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
@@ -254,7 +253,7 @@ public class MainController {
     }
 
 
-    private void showFlights(SplayTree<FlightCodeKey, Flight> flights) {
+    private void showFlights(SplayTree<FlightCodeKey, Flight> flights, String header) {
         try {
             Stage tab = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GUI/views/ShowFlightsView.fxml"));
@@ -262,6 +261,7 @@ public class MainController {
             tab.setScene(new Scene(root));
             ShowFlightsController controller = fxmlLoader.getController();
             controller.showFlights(flights);
+            controller.setHeader(header);
             tab.showAndWait();
         }
         catch (Exception e) {
@@ -319,7 +319,7 @@ public class MainController {
                 alert.setTitle("Error");
                 alert.setHeaderText("Flight not found");
                 alert.showAndWait();
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         });
     }

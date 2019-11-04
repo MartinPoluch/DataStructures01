@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class AddAirplaneController {
@@ -39,7 +38,9 @@ public class AddAirplaneController {
         if (valid) {
             try {
                 int minLength = Integer.parseInt(this.minLength.getText());
-                Airplane airplane = new Airplane(type.getText(), code.getText(), minLength);
+                String typeStr = type.getText().replace(",", "");
+                String codeStr = code.getText().replace(",", "");
+                Airplane airplane = new Airplane(typeStr, codeStr, minLength);
                 flight = new Flight(airplane);
             }
             catch (Exception e) {

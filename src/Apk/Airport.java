@@ -12,7 +12,6 @@ import java.util.*;
 
 public class Airport {
 
-    private File numberOfRunways;
     private LocalDateTime actualDateTime;
     private SplayTree<RunwayTypeKey, RunwayType> runways;
     private SplayTree<AirplaneCodeKey, Airplane> allAirplanes;
@@ -22,8 +21,7 @@ public class Airport {
 
     private DataGenerator dataGenerator;
 
-    public Airport(LocalDateTime datetime) {
-        this.numberOfRunways = new File("src\\Apk\\numberOfRunways.csv");
+    public Airport(LocalDateTime datetime, File runwaysFile) {
         this.actualDateTime = datetime;
         this.allAirplanes = new SplayTree<>();
         this.arrivedFlights = new SplayTree<>();
@@ -31,7 +29,7 @@ public class Airport {
         this.runways = new SplayTree<>();
         this.allFlightsOnRunway = new SplayTree<>();
         this.dataGenerator = new DataGenerator();
-        this.readNumbersOfRunways();
+        this.readNumbersOfRunways(runwaysFile);
     }
 
     public Airport(File saveDirectory) throws IOException, IllegalArgumentException{
@@ -76,13 +74,13 @@ public class Airport {
         }
     }
 
-    private void readNumbersOfRunways() {
+    private void readNumbersOfRunways(File runwaysFile) {
         // data v subore su usporiadane podla dlzky drahy, pri nacitani drah priamo do splay stromu by bol splay strom zdegenerovany
         // z toho dovodu drahy najskor nacitam do arrayListu, kde nasledne nahodne zmenim poradie prvkov (shuffle)
         List<RunwayType> antiDegeneration = new ArrayList<>();
         int biggestRunway = 0; //TODO mohol by to byt atribut a pri pridavani lietadla sa bude checkovat dlzka
         try {
-            Scanner scanner = new Scanner(numberOfRunways);
+            Scanner scanner = new Scanner(runwaysFile);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] parseLine = line.split(",");
@@ -107,10 +105,16 @@ public class Airport {
 
     }
 
+    /**
+     * Zlozitost: O(log N) + O(log A)
+     * @param flight
+     * @throws IllegalArgumentException
+     */
     public void addFlight(Flight flight) throws IllegalArgumentException{
         if (flight != null) {
             flight.setArrival(actualDateTime);
             Airplane temporaryAirplane = flight.getAirplane();
+            //O(log N)
             Airplane airplane = allAirplanes.findOrInsert(new AirplaneCodeKey(temporaryAirplane), temporaryAirplane); // ak uz lietadlo existuje v systeme tak si vytiaheme referenciu
             if (airplane.getState() != State.INACTIVE) {
                 throw new IllegalArgumentException("Flight with code: " + flight.getCode() + " , is already on the airport. " +
@@ -118,10 +122,17 @@ public class Airport {
             }
             airplane.setState(State.ARRIVED);
             flight.setAirplane(airplane); // priradime k letu novu refeneciu (v pripade ze lietadlo uz existuje v systeme)
-            arrivedFlights.insert(new FlightCodeKey(flight), flight);
+            arrivedFlights.insert(new FlightCodeKey(flight), flight); //O(log A)
         }
     }
 
+    /**
+     * Zlozitost: O(log A) + O(log T)
+     * @param code
+     * @param priority
+     * @throws IllegalArgumentException
+     * @throws NoSuchElementException
+     */
     public void requestRunway(String code, int priority) throws IllegalArgumentException, NoSuchElementException {
         FlightCodeKey key = new FlightCodeKey(new Flight(code));
         Flight flight = arrivedFlights.remove(key); // lietadlo musi byt priletene aby mohlo poziadat o drahu
@@ -158,7 +169,6 @@ public class Airport {
     }
 
     public Flight findFlightOnRunway(FlightCodeKey flightKey, RunwayTypeKey runwayKey) {
-        //TODO zmen parametre na string a int
         RunwayType runwayType = runways.find(runwayKey);
         if (runwayType != null) {
             return runwayType.getWaitingFlights().find(flightKey);
@@ -182,7 +192,8 @@ public class Airport {
     /**
      * Lietadla sa budu do zoznamu vsetkych lietadiel na drahe pridavat len z triedy runWayType
      */
-    public void addFlightToRunway(Flight flight) {
+    public void
+    addFlightToRunway(Flight flight) {
         allFlightsOnRunway.insert(new FlightCodeKey(flight), flight);
     }
 
@@ -301,7 +312,4 @@ public class Airport {
         }
     }
 
-    public void loadDataFromFiles(File directory) {
-
-    }
 }

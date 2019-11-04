@@ -16,10 +16,10 @@ public class Runway {
         this.flightsHistory = new LinkedList<>();
     }
 
-    public Runway(int id, int length, Flight flight, LinkedList<Flight> flightsHistory) {
+    public Runway(int id, int length,LinkedList<Flight> flightsHistory) {
         this.id = id;
         this.length = length;
-        this.flight = flight;
+        this.flight = null;
         this.flightsHistory = flightsHistory;
     }
 
